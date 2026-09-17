@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="ALL SET RENT — оборудование и готовые комплекты для съёмочных площадок с доставкой по Москве." />
-    <meta name="theme-color" content="#1746e0" />
+    <meta name="theme-color" content="#f7f7f5" />
     <title>ALLSET RENT — всё для съёмочной смены</title>
     <link rel="stylesheet" href="theme.css" />
     <script type="module" src="src/app.js"></script>
@@ -24,7 +24,11 @@
       <div class="header-actions">
         <button class="quiet-button" data-open-help>Помочь с подбором</button>
         <button class="cart-button" data-open-cart aria-label="Открыть смету">
-          <span>Смета</span><strong data-cart-count>0</strong>
+          <span class="cart-label">Смета</span>
+          <span class="cart-indicator" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img"><path d="M4 7h16l-1.5 9h-13L4 7Zm3 12h.01M17 19h.01M2 4h2l1 3" /></svg>
+            <strong data-cart-count>0</strong>
+          </span>
         </button>
         <button class="menu-button" aria-label="Открыть меню" aria-expanded="false"><span></span><span></span></button>
       </div>
