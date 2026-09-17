@@ -19,8 +19,8 @@ footer{padding:62px max(32px,calc((100vw - min(1480px,calc(100vw - 64px)))/2)) 2
 
 /* Balanced type scale — larger, but still calm across the storefront. */
 :root{
-  --type-caption:10px;
-  --type-small:13px;
+  --type-caption:11px;
+  --type-small:14px;
   --type-body:15px;
   --type-card:18px;
   --type-section:clamp(41px,4.15vw,59px);
@@ -32,7 +32,7 @@ body{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
 .hero h1{max-width:690px;font-size:var(--type-hero);line-height:.97;letter-spacing:-.045em}
 .hero-lead{max-width:590px;font-size:clamp(17px,1.3vw,20px);line-height:1.48}
 .hero-trust strong{font-size:19px}
-.hero-trust span,.availability{font-size:11px}
+.hero-trust span,.availability{font-size:12px}
 .board-topline,.date-panel label span,.board-summary>div:nth-child(2) span,.board-route{font-size:var(--type-caption)}
 .section-heading h2,.help-banner h2,.long-term h2,.payment h2{font-size:var(--type-section);line-height:1;letter-spacing:-.042em}
 .section-heading>p,.help-copy p,.long-term-copy>p:not(.eyebrow){font-size:var(--type-body);line-height:1.6}
@@ -48,6 +48,8 @@ body{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
 .rate-card-top,.rate-card>p,.help-index{font-size:var(--type-caption)}
 .rate-card li,.process-grid p,.payment-options p,.footer-links,.footer-contact{font-size:var(--type-small)}
 .process-grid h3,.payment-options h3{font-size:var(--type-card)}
+.primary-button,.text-button,.board-button,.secondary-button,.cart-button{font-size:13px}
+.footer-bottom,.drawer-head span,.dialog-head span,.range-label,.cart-summary>p{font-size:10px}
 
 h1,h2,h3,strong,b{font-weight:600}
 .primary-button,.text-button,.board-button,.secondary-button,.add-button,.kit-add,.checkout-button,.download-button,.quiet-button,.cart-button,.category-filters button,.help-dialog legend{font-weight:600}
