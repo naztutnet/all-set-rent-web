@@ -1,0 +1,6 @@
+dist/
+.DS_Store
+node_modules/
+AGENTS.md
+cross-cutting-principles.md
+skill-observations/

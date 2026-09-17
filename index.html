@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ALL SET RENT — оборудование и готовые комплекты для съёмочных площадок с доставкой по Москве." />
+    <meta name="theme-color" content="#1746e0" />
+    <title>ALL SET RENT — всё для съёмочной смены</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="src/app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#catalog">К каталогу</a>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="ALL SET RENT — на главную">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>ALL SET <b>RENT</b></span>
+      </a>
+      <nav class="desktop-nav" aria-label="Основная навигация">
+        <a href="#catalog">Каталог</a>
+        <a href="#kits">Готовые комплекты</a>
+        <a href="#long-term">Долгосрочная аренда</a>
+        <a href="#how">Как это работает</a>
+      </nav>
+      <div class="header-actions">
+        <button class="quiet-button" data-open-help>Помочь с подбором</button>
+        <button class="cart-button" data-open-cart aria-label="Открыть смету">
+          <span>Смета</span><strong data-cart-count>0</strong>
+        </button>
+        <button class="menu-button" aria-label="Открыть меню" aria-expanded="false"><span></span><span></span></button>
+      </div>
+    </header>
+
+    <nav class="mobile-nav" aria-label="Мобильная навигация">
+      <a href="#catalog">Каталог</a>
+      <a href="#kits">Готовые комплекты</a>
+      <a href="#long-term">Долгосрочная аренда</a>
+      <a href="#how">Как это работает</a>
+      <button data-open-help>Помочь с подбором</button>
+    </nav>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Снабжение съёмочных площадок · Москва</p>
+          <h1>Всё для смены.<br /><em>Уже собрано.</em></h1>
+          <p class="hero-lead">Оборудование, мебель, шатры и связь — одним заказом, с одной доставкой и полной ответственностью за комплект.</p>
+          <div class="hero-actions">
+            <a class="primary-button" href="#catalog">Выбрать оборудование <span>↘</span></a>
+            <button class="text-button" data-open-help>Описать задачу <span>→</span></button>
+          </div>
+          <ul class="hero-trust" aria-label="Преимущества сервиса">
+            <li><strong>15 мин</strong><span>на подтверждение наличия</span></li>
+            <li><strong>1 смета</strong><span>даже если складов несколько</span></li>
+            <li><strong>24/7</strong><span>поддержка во время смены</span></li>
+          </ul>
+        </div>
+
+        <div class="shift-board" aria-label="Планировщик смены">
+          <div class="board-topline">
+            <span>Планировщик смены</span>
+            <span class="live-status"><i></i> Наличие обновлено</span>
+          </div>
+          <div class="date-panel">
+            <label>
+              <span>Получение</span>
+              <input type="date" id="start-date" aria-label="Дата получения" />
+            </label>
+            <span class="date-arrow">→</span>
+            <label>
+              <span>Возврат</span>
+              <input type="date" id="end-date" aria-label="Дата возврата" />
+            </label>
+          </div>
+          <div class="board-summary">
+            <div class="summary-icon" aria-hidden="true">
+              <span></span><span></span><span></span>
+            </div>
+            <div>
+              <span>Ваша смена</span>
+              <strong data-days-label>1 день</strong>
+            </div>
+            <div class="availability"><i></i><span>2 480 ед.<br />доступно</span></div>
+          </div>
+          <div class="board-route">
+            <span>Выберите даты</span><i></i><span>Соберите комплект</span><i></i><span>Получите смету</span>
+          </div>
+          <button class="board-button" data-jump-catalog>Показать доступное оборудование</button>
+        </div>
+      </section>
+
+      <section class="ticker" aria-label="Категории оборудования">
+        <div>
+          <span>Шатры</span><i>●</i><span>Мебель</span><i>●</i><span>Связь</span><i>●</i><span>Климат</span><i>●</i><span>Грим</span><i>●</i><span>Питание</span><i>●</i><span>Доставка</span>
+        </div>
+      </section>
+
+      <section class="catalog-section" id="catalog">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Каталог · доступно на выбранные даты</p>
+            <h2>Соберите свою смену</h2>
+          </div>
+          <p>Показываем фактический остаток с учётом броней и времени на подготовку.</p>
+        </div>
+        <div class="catalog-tools">
+          <div class="category-filters" role="group" aria-label="Фильтр по категории">
+            <button class="is-active" data-category="Все">Все</button>
+            <button data-category="Мебель">Мебель</button>
+            <button data-category="Шатры">Шатры</button>
+            <button data-category="Климат">Климат</button>
+            <button data-category="Связь">Связь</button>
+            <button data-category="Грим">Грим</button>
+          </div>
+          <label class="search-field">
+            <span class="sr-only">Поиск по каталогу</span>
+            <input type="search" placeholder="Найти в каталоге" data-search />
+            <kbd>⌘ K</kbd>
+          </label>
+        </div>
+        <div class="product-grid" data-product-grid></div>
+        <div class="catalog-footer">
+          <button class="secondary-button" data-show-all>Показать весь каталог <span data-catalog-count>8 позиций</span></button>
+          <p>Не нашли нужное? <button data-open-help>Пришлите список — найдём и добавим в одну смету.</button></p>
+        </div>
+      </section>
+
+      <section class="kits-section" id="kits">
+        <div class="section-heading inverse">
+          <div>
+            <p class="eyebrow">Проверенные составы</p>
+            <h2>Комплекты под задачу</h2>
+          </div>
+          <p>Берите готовую конфигурацию и меняйте количество — совместимость уже проверена.</p>
+        </div>
+        <div class="kit-grid" data-kit-grid></div>
+      </section>
+
+      <section class="help-banner">
+        <div class="help-index">/ 01</div>
+        <div>
+          <p class="eyebrow">Не знаете точный состав?</p>
+          <h2>Опишите площадку.<br />Мы соберём остальное.</h2>
+        </div>
+        <div class="help-copy">
+          <p>Пришлите вызывной, список или задачу своими словами. Супервайзер предложит полный комплект и варианты замены.</p>
+          <button class="primary-button light" data-open-help>Получить подбор <span>→</span></button>
+        </div>
+      </section>
+
+      <section class="long-term" id="long-term">
+        <div class="long-term-copy">
+          <p class="eyebrow">От 8 дней</p>
+          <h2>Чем дольше проект,<br />тем спокойнее смета.</h2>
+          <p>Фиксируем оборудование и ставку на весь период. Для сериалов, экспедиций, павильонных проектов и длительных съёмок.</p>
+          <a class="text-button" href="#payment">Посмотреть условия <span>↓</span></a>
+        </div>
+        <div class="rate-card">
+          <div class="rate-card-top"><span>Ставка по сроку</span><small>автоматический расчёт</small></div>
+          <ol>
+            <li><span>1–3 дня</span><b>Базовая ставка</b><strong>0%</strong></li>
+            <li><span>4–7 дней</span><b>Недельная</b><strong>−10%</strong></li>
+            <li class="featured"><span>8–14 дней</span><b>Проектная</b><strong>−20%</strong></li>
+            <li><span>15–30 дней</span><b>Длительная</b><strong>−30%</strong></li>
+            <li><span>31+ день</span><b>Индивидуальная</b><strong>до −45%</strong></li>
+          </ol>
+          <p>Скидка применится в смете после выбора дат.</p>
+        </div>
+      </section>
+
+      <section class="process" id="how">
+        <div class="section-heading">
+          <div><p class="eyebrow">Один цифровой маршрут</p><h2>От задачи до возврата</h2></div>
+          <p>Заказ остаётся единым, даже если комплект собран из нескольких складов сети.</p>
+        </div>
+        <div class="process-grid">
+          <article><span>01</span><div class="process-icon">⌖</div><h3>Выберите даты</h3><p>Сразу покажем только доступные позиции и полные комплекты.</p></article>
+          <article><span>02</span><div class="process-icon">＋</div><h3>Соберите заказ</h3><p>Самостоятельно или с помощью супервайзера по вашему списку.</p></article>
+          <article><span>03</span><div class="process-icon">✓</div><h3>Подтвердите смету</h3><p>Одна цена, один договор, прозрачная доставка и депозит.</p></article>
+          <article><span>04</span><div class="process-icon">→</div><h3>Получите на площадке</h3><p>Привезём, соберём и останемся на связи до закрытия заказа.</p></article>
+        </div>
+      </section>
+
+      <section class="payment" id="payment">
+        <div>
+          <p class="eyebrow">Оплата и документы</p>
+          <h2>Работаем так,<br />как удобно проекту</h2>
+        </div>
+        <div class="payment-options">
+          <article><span>01</span><h3>Карта или СБП</h3><p>Онлайн после подтверждения наличия. Чек придёт на почту.</p></article>
+          <article><span>02</span><h3>Безналичный расчёт</h3><p>Счёт с НДС, договор, УПД и закрывающие документы в одном окне.</p></article>
+          <article><span>03</span><h3>Наличные</h3><p>При самовывозе или доставке — после согласования с менеджером.</p></article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-brand">
+        <a class="brand brand-light" href="#top"><span class="brand-mark"><i></i><i></i><i></i></span><span>ALL SET <b>RENT</b></span></a>
+        <p>Единая служба снабжения съёмочных площадок.</p>
+      </div>
+      <div class="footer-links"><a href="#catalog">Каталог</a><a href="#kits">Комплекты</a><a href="#long-term">Долгосрочная аренда</a><button data-open-help>Помощь с подбором</button></div>
+      <div class="footer-contact"><a href="tel:+74951280024">+7 495 128-00-24</a><a href="mailto:hello@allsetrent.ru">hello@allsetrent.ru</a><span>Москва и Московская область</span></div>
+      <div class="footer-bottom"><span>© 2026 ALL SET RENT</span><a href="#">Условия аренды</a><a href="#">Политика конфиденциальности</a><span>Сайт подключается к Бот-Складу через API</span></div>
+    </footer>
+
+    <aside class="cart-drawer" aria-hidden="true" aria-label="Смета заказа">
+      <div class="drawer-head"><div><span>Ваш заказ</span><h2>Предварительная смета</h2></div><button class="icon-button" data-close-cart aria-label="Закрыть смету">×</button></div>
+      <div class="drawer-dates"><span data-drawer-dates>Выберите даты</span><button data-edit-dates>Изменить</button></div>
+      <div class="cart-items" data-cart-items></div>
+      <div class="empty-cart" data-empty-cart><div>＋</div><h3>Смета пока пустая</h3><p>Добавьте оборудование или готовый комплект.</p><button data-close-cart data-jump-catalog>Перейти в каталог</button></div>
+      <div class="cart-summary" data-cart-summary>
+        <dl><div><dt>Аренда</dt><dd data-subtotal>0 ₽</dd></div><div><dt>Доставка по Москве</dt><dd data-delivery>0 ₽</dd></div><div><dt>Сервис и подготовка</dt><dd data-service>0 ₽</dd></div><div class="discount-row"><dt>Скидка за срок</dt><dd data-discount>0%</dd></div></dl>
+        <div class="total-row"><span>Итого</span><strong data-total>0 ₽</strong></div>
+        <p>Финальная стоимость — после подтверждения адреса и наличия.</p>
+        <button class="checkout-button" data-checkout>Запросить подтверждение <span>→</span></button>
+        <button class="download-button" data-download>Скачать смету</button>
+      </div>
+    </aside>
+    <div class="overlay" data-overlay></div>
+
+    <dialog class="help-dialog" data-help-dialog>
+      <form method="dialog">
+        <div class="dialog-head"><div><span>Подбор оборудования</span><h2>Расскажите о смене</h2></div><button value="cancel" class="icon-button" aria-label="Закрыть">×</button></div>
+        <p>Ответьте на три вопроса — покажем стартовый комплект. Состав можно будет изменить.</p>
+        <fieldset><legend>Что снимаете?</legend><div class="choice-row"><label><input type="radio" name="project" value="commercial" checked /><span>Реклама</span></label><label><input type="radio" name="project" value="series" /><span>Сериал</span></label><label><input type="radio" name="project" value="event" /><span>Шоу / событие</span></label></div></fieldset>
+        <fieldset><legend>Сколько человек на площадке?</legend><input type="range" name="crew" min="10" max="120" value="30" step="10" /><div class="range-label"><span>10</span><strong data-crew-value>30 человек</strong><span>120</span></div></fieldset>
+        <fieldset><legend>Какие условия?</legend><div class="choice-row wrap"><label><input type="checkbox" name="condition" value="outdoor" /><span>Натура</span></label><label><input type="checkbox" name="condition" value="night" /><span>Ночь</span></label><label><input type="checkbox" name="condition" value="cold" /><span>Холод</span></label><label><input type="checkbox" name="condition" value="makeup" /><span>Грим</span></label></div></fieldset>
+        <button class="primary-button dialog-submit" value="default" data-build-kit>Собрать стартовый комплект <span>→</span></button>
+      </form>
+    </dialog>
+
+    <div class="toast" role="status" aria-live="polite" data-toast></div>
+  </body>
+</html>

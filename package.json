@@ -1,0 +1,15 @@
+{
+  "name": "all-set-rent-web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Клиентский веб-интерфейс цифрового рентала оборудования ALL SET RENT",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
