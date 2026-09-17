@@ -8,7 +8,7 @@ const dist = path.join(root, "dist");
 await rm(dist, { recursive: true, force: true });
 await mkdir(dist, { recursive: true });
 
-for (const file of ["index.html", "styles.css"]) {
+for (const file of ["index.html", "theme.css"]) {
   if (!existsSync(path.join(root, file))) throw new Error(`Missing ${file}`);
   await cp(path.join(root, file), path.join(dist, file));
 }
