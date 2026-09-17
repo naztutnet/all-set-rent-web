@@ -22,18 +22,19 @@ footer{padding:62px max(32px,calc((100vw - min(1480px,calc(100vw - 64px)))/2)) 2
   --type-caption:10px;
   --type-small:12px;
   --type-body:14px;
-  --type-card:18px;
-  --type-section:clamp(40px,4.35vw,62px);
-  --type-hero:clamp(52px,6.1vw,88px);
+  --type-card:17px;
+  --type-section:clamp(38px,3.8vw,54px);
+  --type-hero:clamp(48px,5.4vw,78px);
 }
+body{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
 .eyebrow{font-size:var(--type-caption);letter-spacing:.15em}
-.hero{min-height:640px}
-.hero h1{max-width:680px;font-size:var(--type-hero);line-height:.96;letter-spacing:-.055em}
-.hero-lead{max-width:570px;font-size:clamp(17px,1.3vw,20px);line-height:1.5}
+.hero{min-height:620px}
+.hero h1{max-width:650px;font-size:var(--type-hero);line-height:.98;letter-spacing:-.045em}
+.hero-lead{max-width:570px;font-size:clamp(16px,1.2vw,19px);line-height:1.5}
 .hero-trust strong{font-size:18px}
 .hero-trust span,.availability{font-size:11px}
 .board-topline,.date-panel label span,.board-summary>div:nth-child(2) span,.board-route{font-size:var(--type-caption)}
-.section-heading h2,.help-banner h2,.long-term h2,.payment h2{font-size:var(--type-section);line-height:.96;letter-spacing:-.052em}
+.section-heading h2,.help-banner h2,.long-term h2,.payment h2{font-size:var(--type-section);line-height:1;letter-spacing:-.042em}
 .section-heading>p,.help-copy p,.long-term-copy>p:not(.eyebrow){font-size:var(--type-body);line-height:1.6}
 .category-filters button,.secondary-button,.catalog-footer p{font-size:var(--type-small)}
 .search-field input{font-size:14px}
@@ -41,16 +42,19 @@ footer{padding:62px max(32px,calc((100vw - min(1480px,calc(100vw - 64px)))/2)) 2
 .product-card h3{font-size:var(--type-card);letter-spacing:-.025em}
 .product-price strong{font-size:16px}
 .kit-label,.kit-price span{font-size:var(--type-caption)}
-.kit-card h3{font-size:clamp(28px,2.5vw,40px);line-height:1}
+.kit-card h3{font-size:clamp(27px,2.25vw,36px);line-height:1.04}
 .kit-card>p{font-size:13px}
 .kit-items,.kit-add{font-size:11px}
 .rate-card-top,.rate-card>p,.help-index{font-size:var(--type-caption)}
 .rate-card li,.process-grid p,.payment-options p,.footer-links,.footer-contact{font-size:var(--type-small)}
 .process-grid h3,.payment-options h3{font-size:var(--type-card)}
 
+h1,h2,h3,strong,b{font-weight:600}
+.primary-button,.text-button,.board-button,.secondary-button,.add-button,.kit-add,.checkout-button,.download-button,.quiet-button,.cart-button,.category-filters button,.help-dialog legend{font-weight:600}
+
 @media(max-width:520px){
-  .hero h1{font-size:48px}
-  .section-heading h2,.help-banner h2,.long-term h2,.payment h2{font-size:38px}
+  .hero h1{font-size:44px}
+  .section-heading h2,.help-banner h2,.long-term h2,.payment h2{font-size:36px}
   .product-visual{height:206px}
   .product-visual img{width:168px}
 }
