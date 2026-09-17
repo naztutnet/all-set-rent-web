@@ -59,7 +59,7 @@ function productCard(product) {
     <article class="product-card">
       <div class="product-visual tone-${product.tone}">
         <span class="product-tag">${product.tag}</span>
-        <img src="${product.image}" alt="" />
+        <img src="${product.image}" alt="" width="960" height="960" loading="lazy" decoding="async" />
       </div>
       <div class="product-meta"><span>${product.category}</span><span class="stock">${product.stock} доступно</span></div>
       <h3>${product.name}</h3>
