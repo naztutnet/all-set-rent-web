@@ -7,7 +7,7 @@ export const products = [
     unit: "шт. / смена",
     stock: 46,
     tag: "На площадку",
-    image: "assets/catalog/chair-director.webp",
+    image: "assets/chair.svg",
     tone: "cobalt",
   },
   {
@@ -18,7 +18,7 @@ export const products = [
     unit: "шт. / смена",
     stock: 8,
     tag: "Монтаж включён",
-    image: "assets/catalog/tent-3x6.webp",
+    image: "assets/tent.svg",
     tone: "sky",
   },
   {
@@ -29,7 +29,7 @@ export const products = [
     unit: "шт. / смена",
     stock: 12,
     tag: "Зимняя смена",
-    image: "assets/catalog/heater-diesel.webp",
+    image: "assets/heater.svg",
     tone: "orange",
   },
   {
@@ -40,7 +40,7 @@ export const products = [
     unit: "шт. / смена",
     stock: 78,
     tag: "Заряжена",
-    image: "assets/catalog/radio-motorola.webp",
+    image: "assets/radio.svg",
     tone: "graphite",
   },
   {
@@ -51,7 +51,7 @@ export const products = [
     unit: "шт. / смена",
     stock: 34,
     tag: "Быстрая сборка",
-    image: "assets/catalog/table-folding.webp",
+    image: "assets/table.svg",
     tone: "mint",
   },
   {
@@ -62,7 +62,7 @@ export const products = [
     unit: "шт. / смена",
     stock: 15,
     tag: "С подсветкой",
-    image: "assets/catalog/makeup-mirror.webp",
+    image: "assets/mirror.svg",
     tone: "rose",
   },
   {
@@ -73,7 +73,7 @@ export const products = [
     unit: "шт. / смена",
     stock: 9,
     tag: "Тихая работа",
-    image: "assets/catalog/power-station.webp",
+    image: "assets/power.svg",
     tone: "yellow",
   },
   {
@@ -84,7 +84,7 @@ export const products = [
     unit: "шт. / смена",
     stock: 24,
     tag: "До 80 кг",
-    image: "assets/catalog/rack-costume.webp",
+    image: "assets/rack.svg",
     tone: "lilac",
   },
 ];
