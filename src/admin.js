@@ -27,7 +27,7 @@ function productRow(item) {
     ? `<img src="${item.image}" alt="" loading="lazy" decoding="async" />`
     : `<span>${item.name.slice(0, 1)}</span>`;
   const price = item.price == null ? "Не задана" : `${money.format(item.price)} ₽`;
-  const stock = item.stock == null ? "—" : money.format(item.stock);
+  const stock = item.stock == null ? "—" : `${item.stockEstimated ? "≈ " : ""}${money.format(item.stock)}`;
   return `<article class="inventory-row" data-item-id="${item.id}">
     <div class="inventory-product">
       <div class="inventory-thumb ${item.image ? "has-image" : ""}">${image}</div>
@@ -35,7 +35,7 @@ function productRow(item) {
     </div>
     <span class="inventory-category">${item.categoryName}</span>
     <span class="inventory-value"><small>Цена</small>${price}</span>
-    <span class="inventory-value"><small>Остаток</small>${stock}</span>
+    <span class="inventory-value inventory-stock" title="${item.stockEstimated ? "Предварительная оценка — заменим фактическим остатком" : "Фактический остаток"}"><small>Остаток</small>${stock}${item.stockEstimated ? "<em>оценка</em>" : ""}</span>
     ${statusLabel(item)}
     <button class="row-action" type="button" data-preview="${item.id}" aria-label="Открыть ${item.name}">→</button>
   </article>`;

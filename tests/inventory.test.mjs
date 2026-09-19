@@ -20,3 +20,10 @@ test("каждая позиция имеет понятное название �
     assert.equal(typeof item.published, "boolean");
   });
 });
+
+test("у каждой позиции задан временный положительный остаток", () => {
+  inventoryProducts.forEach((item) => {
+    assert.ok(Number.isInteger(item.stock) && item.stock > 0, `${item.id}: нет временного остатка`);
+    assert.equal(item.stockEstimated, true);
+  });
+});

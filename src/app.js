@@ -61,7 +61,7 @@ function productCard(product) {
         <span class="product-tag">${product.tag}</span>
         <img src="${product.image}" alt="" width="960" height="960" loading="lazy" decoding="async" />
       </div>
-      <div class="product-meta"><span>${product.category}</span><span class="stock">${product.stock} доступно</span></div>
+      <div class="product-meta"><span>${product.category}</span><span class="stock">≈ ${product.stock} доступно</span></div>
       <h3>${product.name}</h3>
       <div class="product-buy">
         <div class="product-price"><strong>от ${formatMoney(product.price)}</strong><span>${product.unit}</span></div>

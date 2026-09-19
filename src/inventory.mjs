@@ -14,6 +14,26 @@ export const inventoryCategories = [
 
 const categoryName = new Map(inventoryCategories.map((category) => [category.id, category.name]));
 
+const draftStockRanges = {
+  furniture: [8, 36],
+  shelter: [4, 14],
+  light: [12, 42],
+  climate: [5, 18],
+  catering: [4, 16],
+  office: [3, 10],
+  media: [5, 30],
+  power: [10, 64],
+  effects: [2, 7],
+  utility: [6, 32],
+  safety: [10, 48],
+};
+
+function draftStock(id, category) {
+  const [min, max] = draftStockRanges[category];
+  const hash = [...id].reduce((sum, character, index) => sum + character.charCodeAt(0) * (index + 3), 0);
+  return min + (hash % (max - min + 1));
+}
+
 function product(id, name, category, options = {}) {
   return {
     id,
@@ -22,7 +42,8 @@ function product(id, name, category, options = {}) {
     categoryName: categoryName.get(category),
     unit: options.unit || "шт.",
     price: options.price ?? null,
-    stock: options.stock ?? null,
+    stock: options.stock ?? draftStock(id, category),
+    stockEstimated: options.stockEstimated ?? true,
     image: options.image || null,
     published: options.published ?? false,
     featured: options.featured ?? false,
@@ -31,7 +52,8 @@ function product(id, name, category, options = {}) {
 }
 
 // Полный рабочий каталог: 89 позиций из списка заказчика + режиссёрское кресло.
-// Цена, остаток и публичное фото приходят из Бот-Склада через API.
+// Остатки пока оценочные: после подключения API их заменит Бот-Склад.
+// Цена и публичное фото также приходят из Бот-Склада через API.
 export const inventoryProducts = [
   product("director-chair", "Кресло режиссёрское", "furniture", {
     price: 650,
