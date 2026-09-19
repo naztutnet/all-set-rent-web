@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="allset-api" content="" />
+    <meta name="theme-color" content="#f3f3f1" />
+    <title>ALLSET RENT — управление каталогом</title>
+    <link rel="stylesheet" href="admin.css" />
+    <script type="module" src="src/admin.js"></script>
+  </head>
+  <body>
+    <aside class="admin-sidebar">
+      <a class="admin-brand" href="index.html" aria-label="ALLSET RENT — открыть сайт"><span></span></a>
+      <nav aria-label="Разделы управления">
+        <a class="is-active" href="#catalog"><i>□</i><span>Каталог</span></a>
+        <a href="#orders" aria-disabled="true"><i>≡</i><span>Заказы</span><small>скоро</small></a>
+        <a href="#kits" aria-disabled="true"><i>◇</i><span>Комплекты</span></a>
+        <a href="#settings" aria-disabled="true"><i>○</i><span>Настройки</span></a>
+      </nav>
+      <div class="sidebar-bottom"><span>AS</span><div><strong>Администратор</strong><small>ALLSET RENT</small></div></div>
+    </aside>
+
+    <main class="admin-main" id="catalog">
+      <header class="admin-header">
+        <div><p>Бот‑Склад / Каталог</p><h1>Управление оборудованием</h1></div>
+        <a href="index.html" target="_blank" rel="noreferrer">Открыть сайт <span>↗</span></a>
+      </header>
+
+      <section class="connection-card" data-admin-mode data-mode="loading">
+        <i></i><div><strong>Подключение…</strong><span>Проверяем API Бот‑Склада</span></div>
+        <small>Данные не изменяются без авторизации</small>
+      </section>
+
+      <section class="stats-grid" aria-label="Сводка каталога">
+        <article><span>В описи</span><strong data-stat="total">—</strong><small>позиций</small></article>
+        <article><span>Категории</span><strong data-stat="categories">—</strong><small>понятная навигация</small></article>
+        <article><span>На сайте</span><strong data-stat="published">—</strong><small>публичные карточки</small></article>
+        <article class="photo-stat" data-photo-progress><span>С фото</span><strong data-stat="photos">—</strong><small>готовы к публикации</small><i></i></article>
+      </section>
+
+      <section class="catalog-panel">
+        <div class="panel-head">
+          <div><h2>Каталог</h2><span data-result-count>—</span></div>
+          <button type="button" disabled>+ Добавить позицию</button>
+        </div>
+        <div class="admin-tools">
+          <label class="admin-search"><span>⌕</span><input type="search" placeholder="Название, категория или артикул" data-admin-search /></label>
+          <label class="admin-select"><span>Категория</span><select data-category-select><option value="all">Все категории</option></select></label>
+          <div class="status-filters" aria-label="Статус публикации">
+            <button class="is-active" type="button" data-status="all">Все</button>
+            <button type="button" data-status="published">На сайте</button>
+            <button type="button" data-status="draft">Черновики</button>
+            <button type="button" data-status="photo">Нужно фото</button>
+          </div>
+        </div>
+        <div class="inventory-head" aria-hidden="true"><span>Позиция</span><span>Категория</span><span>Цена</span><span>Остаток</span><span>Статус</span><span></span></div>
+        <div class="inventory-list" data-admin-catalog><div class="admin-loading">Загружаем каталог…</div></div>
+      </section>
+
+      <section class="next-step">
+        <div><span>Следующий этап</span><h2>Безопасное подключение к Бот‑Складу</h2></div>
+        <p>После запуска защищённого API здесь появятся редактирование карточек, загрузка фотографий, реальные остатки и публикация на сайт. Google Sheets останется единственным источником данных.</p>
+      </section>
+    </main>
+    <div class="admin-toast" role="status" aria-live="polite" data-toast></div>
+  </body>
+</html>

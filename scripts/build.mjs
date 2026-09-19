@@ -8,7 +8,7 @@ const dist = path.join(root, "dist");
 await rm(dist, { recursive: true, force: true });
 await mkdir(dist, { recursive: true });
 
-for (const file of ["index.html", "theme.css"]) {
+for (const file of ["index.html", "admin.html", "theme.css", "admin.css"]) {
   if (!existsSync(path.join(root, file))) throw new Error(`Missing ${file}`);
   await cp(path.join(root, file), path.join(dist, file));
 }
@@ -22,10 +22,15 @@ for (const marker of required) {
   if (!html.includes(marker)) throw new Error(`Required section missing: ${marker}`);
 }
 
+const adminHtml = await readFile(path.join(dist, "admin.html"), "utf8");
+for (const marker of ["data-admin-catalog", "data-admin-mode", "src/admin.js"]) {
+  if (!adminHtml.includes(marker)) throw new Error(`Admin shell missing: ${marker}`);
+}
+
 const manifest = {
   builtAt: new Date().toISOString(),
   entry: "index.html",
-  backendIntegration: "adapter-ready",
+  backendIntegration: "admin-api-adapter-ready",
 };
 await writeFile(path.join(dist, "build-manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
 console.log("Build complete: dist/");

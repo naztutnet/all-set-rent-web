@@ -7,7 +7,7 @@ export const products = [
     unit: "шт. / смена",
     stock: 46,
     tag: "На площадку",
-    image: "assets/catalog/chair-director.webp",
+    image: "assets/catalog/chair-kopatych.webp",
     tone: "cobalt",
   },
   {
