@@ -82,6 +82,16 @@ h1,h2,h3,strong,b{font-weight:600}
 .cart-item-placeholder{width:60px;height:60px;display:grid;place-items:center;color:#9b9b96;background:var(--fog);border:1px solid var(--line);border-radius:var(--radius-sm);font-size:11px;font-weight:600}
 [hidden]{display:none!important}
 
+.process-icon svg{
+  width:23px;
+  height:23px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
 @media(max-width:520px){
   .hero h1{font-size:48px}
   .section-heading h2,.help-banner h2,.long-term h2,.payment h2{font-size:39px}
