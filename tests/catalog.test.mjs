@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   discountForDays,
   estimate,
+  formatMoney,
   itemTotal,
   rentalDays,
 } from "../src/catalog.mjs";
@@ -33,4 +34,10 @@ test("estimate includes logistics and service", () => {
   assert.equal(result.delivery, 5900);
   assert.equal(result.service, 120);
   assert.equal(result.total, 12020);
+});
+
+test("items without an approved price stay request-only", () => {
+  assert.equal(formatMoney(null), "по запросу");
+  const result = estimate([{ price: null, quantity: 2 }], "2026-09-18", "2026-09-20");
+  assert.equal(result.subtotal, 0);
 });

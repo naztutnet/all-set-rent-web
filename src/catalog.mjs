@@ -161,5 +161,6 @@ export function estimate(cart, start, end) {
 }
 
 export function formatMoney(value) {
+  if (!Number.isFinite(value)) return "по запросу";
   return new Intl.NumberFormat("ru-RU").format(value) + " ₽";
 }

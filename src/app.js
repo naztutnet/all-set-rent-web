@@ -1,9 +1,24 @@
-import { estimate, formatMoney, kits, products, rentalDays } from "./catalog.mjs";
+import { estimate, formatMoney, kits, products as kitProducts, rentalDays } from "./catalog.mjs";
+import { inventoryCategories, inventoryProducts } from "./inventory.mjs?v=4";
+
+const categoryById = new Map(inventoryCategories.map((category) => [category.id, category]));
+const catalogProducts = inventoryProducts.map((item, index) => ({
+  ...item,
+  categoryId: item.category,
+  category: item.categoryName,
+  categoryShort: categoryById.get(item.category)?.short || item.categoryName,
+  unit: `${item.unit} / смена`,
+  tag: item.image ? "Фото готово" : "Фото готовим",
+  tone: "neutral",
+  catalogIndex: index + 1,
+}));
+const selectableProducts = new Map([...kitProducts, ...catalogProducts].map((item) => [item.id, item]));
 
 const state = {
   cart: JSON.parse(localStorage.getItem("allset-cart") || "[]"),
-  category: "Все",
+  category: "all",
   search: "",
+  expanded: false,
 };
 
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -55,16 +70,22 @@ function updateDates() {
 }
 
 function productCard(product) {
+  const visual = product.image
+    ? `<img src="${product.image}" alt="" width="960" height="960" loading="lazy" decoding="async" />`
+    : `<div class="product-placeholder" aria-hidden="true"><span>${String(product.catalogIndex).padStart(2, "0")}</span><small>${product.categoryShort}</small></div>`;
+  const price = Number.isFinite(product.price)
+    ? `<strong>от ${formatMoney(product.price)}</strong><span>${product.unit}</span>`
+    : `<strong class="price-request">Цена по запросу</strong><span>добавим в общую смету</span>`;
   return `
     <article class="product-card">
-      <div class="product-visual tone-${product.tone}">
+      <div class="product-visual tone-${product.tone} ${product.image ? "" : "is-placeholder"}">
         <span class="product-tag">${product.tag}</span>
-        <img src="${product.image}" alt="" width="960" height="960" loading="lazy" decoding="async" />
+        ${visual}
       </div>
       <div class="product-meta"><span>${product.category}</span><span class="stock">≈ ${product.stock} доступно</span></div>
       <h3>${product.name}</h3>
       <div class="product-buy">
-        <div class="product-price"><strong>от ${formatMoney(product.price)}</strong><span>${product.unit}</span></div>
+        <div class="product-price">${price}</div>
         <button class="add-button" data-add-product="${product.id}" aria-label="Добавить ${product.name} в смету">+</button>
       </div>
     </article>`;
@@ -72,19 +93,30 @@ function productCard(product) {
 
 function renderProducts() {
   const query = state.search.trim().toLocaleLowerCase("ru");
-  const filtered = products.filter((product) => {
-    const categoryMatches = state.category === "Все" || product.category === state.category;
-    const searchMatches = !query || `${product.name} ${product.category} ${product.tag}`.toLocaleLowerCase("ru").includes(query);
+  const filtered = catalogProducts.filter((product) => {
+    const categoryMatches = state.category === "all" || product.categoryId === state.category;
+    const searchMatches = !query || `${product.name} ${product.category} ${product.tag} ${(product.aliases || []).join(" ")}`.toLocaleLowerCase("ru").includes(query);
     return categoryMatches && searchMatches;
   });
-  productGrid.innerHTML = filtered.map(productCard).join("") || `<p class="no-results">Ничего не нашли. Попробуйте другой запрос или отправьте список супервайзеру.</p>`;
+  const showCompleteResult = state.expanded || state.category !== "all" || Boolean(query);
+  const visible = showCompleteResult ? filtered : filtered.slice(0, 12);
+  productGrid.innerHTML = visible.map(productCard).join("") || `<p class="no-results">Ничего не нашли. Попробуйте другой запрос или отправьте список супервайзеру.</p>`;
   $("[data-catalog-count]").textContent = `${filtered.length} позиций`;
+  $("[data-show-all-label]").textContent = state.expanded ? "Свернуть каталог" : "Показать весь каталог";
+  $("[data-show-all]").hidden = filtered.length <= 12 || state.category !== "all" || Boolean(query);
+}
+
+function renderCategoryFilters() {
+  $(".category-filters").innerHTML = [
+    '<button class="is-active" data-category="all">Все</button>',
+    ...inventoryCategories.map((category) => `<button data-category="${category.id}">${category.short}</button>`),
+  ].join("");
 }
 
 function renderKits() {
   kitGrid.innerHTML = kits.map((kit, index) => {
     const items = kit.itemIds.map((id, i) => {
-      const product = products.find((entry) => entry.id === id);
+      const product = kitProducts.find((entry) => entry.id === id);
       return `<li>${product.name} × ${kit.quantities[i]}</li>`;
     }).join("");
     return `<article class="kit-card ${kit.accent}" data-code="0${index + 1}">
@@ -100,7 +132,8 @@ function saveCart() {
 }
 
 function addProduct(id, quantity = 1, silent = false) {
-  const product = products.find((entry) => entry.id === id);
+  const product = selectableProducts.get(id);
+  if (!product) return;
   const existing = state.cart.find((item) => item.id === id);
   if (existing) existing.quantity = Math.min(product.stock, existing.quantity + quantity);
   else state.cart.push({ ...product, quantity: Math.min(product.stock, quantity) });
@@ -136,15 +169,19 @@ function renderCart() {
   const totals = estimate(state.cart, startDate.value, endDate.value);
   $("[data-cart-items]").innerHTML = state.cart.map((item) => `
     <article class="cart-item">
-      <img src="${item.image}" alt="" />
-      <div><h3>${item.name}</h3><small>${formatMoney(item.price)} / день</small><div class="quantity-control"><button data-quantity="-1" data-id="${item.id}" aria-label="Уменьшить количество">−</button><span>${item.quantity}</span><button data-quantity="1" data-id="${item.id}" aria-label="Увеличить количество">+</button></div></div>
-      <div class="cart-item-price"><strong>${formatMoney(Math.round(item.price * item.quantity * totals.days * (1 - totals.discount)))}</strong><button class="remove-item" data-remove="${item.id}">Удалить</button></div>
+      ${item.image ? `<img src="${item.image}" alt="" />` : '<div class="cart-item-placeholder" aria-hidden="true">AS</div>'}
+      <div><h3>${item.name}</h3><small>${Number.isFinite(item.price) ? `${formatMoney(item.price)} / день` : "Цена после подтверждения"}</small><div class="quantity-control"><button data-quantity="-1" data-id="${item.id}" aria-label="Уменьшить количество">−</button><span>${item.quantity}</span><button data-quantity="1" data-id="${item.id}" aria-label="Увеличить количество">+</button></div></div>
+      <div class="cart-item-price"><strong>${Number.isFinite(item.price) ? formatMoney(Math.round(item.price * item.quantity * totals.days * (1 - totals.discount))) : "по запросу"}</strong><button class="remove-item" data-remove="${item.id}">Удалить</button></div>
     </article>`).join("");
+  const unpricedCount = state.cart.filter((item) => !Number.isFinite(item.price)).length;
   $("[data-subtotal]").textContent = formatMoney(totals.subtotal);
   $("[data-delivery]").textContent = formatMoney(totals.delivery);
   $("[data-service]").textContent = formatMoney(totals.service);
   $("[data-discount]").textContent = totals.discount ? `−${totals.discount * 100}%` : "0%";
-  $("[data-total]").textContent = formatMoney(totals.total);
+  $("[data-total]").textContent = `${unpricedCount ? "от " : ""}${formatMoney(totals.total)}`;
+  $("[data-cart-note]").textContent = unpricedCount
+    ? `${unpricedCount} поз. без утверждённой цены — менеджер добавит их в финальную смету.`
+    : "Финальная стоимость — после подтверждения адреса и наличия.";
 }
 
 function openCart() {
@@ -195,7 +232,7 @@ function downloadEstimate() {
     "ALL SET RENT — ПРЕДВАРИТЕЛЬНАЯ СМЕТА",
     `Период: ${formatDate(startDate.value)} — ${formatDate(endDate.value)} (${pluralDays(totals.days)})`,
     "",
-    ...state.cart.map((item) => `${item.name} × ${item.quantity} — ${formatMoney(Math.round(item.price * item.quantity * totals.days * (1 - totals.discount)))}`),
+    ...state.cart.map((item) => `${item.name} × ${item.quantity} — ${Number.isFinite(item.price) ? formatMoney(Math.round(item.price * item.quantity * totals.days * (1 - totals.discount))) : "цена по запросу"}`),
     "",
     `Аренда: ${formatMoney(totals.subtotal)}`,
     `Доставка: ${formatMoney(totals.delivery)}`,
@@ -241,13 +278,14 @@ document.addEventListener("click", (event) => {
   if (target.matches("[data-checkout]")) showToast("Заявка сохранена. Менеджер подтвердит наличие за 15 минут.");
   if (target.matches("[data-category]")) {
     state.category = target.dataset.category;
+    state.expanded = false;
     $$("[data-category]").forEach((button) => button.classList.toggle("is-active", button === target));
     renderProducts();
   }
   if (target.matches("[data-show-all]")) {
-    state.category = "Все"; state.search = ""; $("[data-search]").value = "";
-    $$("[data-category]").forEach((button) => button.classList.toggle("is-active", button.dataset.category === "Все"));
+    state.expanded = !state.expanded;
     renderProducts();
+    if (!state.expanded) $("#catalog").scrollIntoView({ behavior: "smooth" });
   }
   if (target.matches(".menu-button")) {
     const nav = $(".mobile-nav");
@@ -259,7 +297,7 @@ document.addEventListener("click", (event) => {
 
 startDate.addEventListener("change", updateDates);
 endDate.addEventListener("change", updateDates);
-$("[data-search]").addEventListener("input", (event) => { state.search = event.target.value; renderProducts(); });
+$("[data-search]").addEventListener("input", (event) => { state.search = event.target.value; state.expanded = false; renderProducts(); });
 $("[name='crew']").addEventListener("input", (event) => { $("[data-crew-value]").textContent = `${event.target.value} человек`; });
 document.addEventListener("keydown", (event) => {
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); $("[data-search]").focus(); }
@@ -267,6 +305,7 @@ document.addEventListener("keydown", (event) => {
 });
 
 initDates();
+renderCategoryFilters();
 renderProducts();
 renderKits();
 renderCart();

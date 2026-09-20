@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#f7f7f5" />
     <title>ALLSET RENT — всё для съёмочной смены</title>
     <link rel="stylesheet" href="theme.css" />
-    <script type="module" src="src/app.js?v=3"></script>
+    <script type="module" src="src/app.js?v=4"></script>
   </head>
   <body>
     <a class="skip-link" href="#catalog">К каталогу</a>
@@ -99,14 +99,7 @@
           <p>Пока показываем ориентировочное количество. После подключения Бот‑Склада остаток будет учитывать брони и время на подготовку.</p>
         </div>
         <div class="catalog-tools">
-          <div class="category-filters" role="group" aria-label="Фильтр по категории">
-            <button class="is-active" data-category="Все">Все</button>
-            <button data-category="Мебель">Мебель</button>
-            <button data-category="Шатры">Шатры</button>
-            <button data-category="Климат">Климат</button>
-            <button data-category="Связь">Связь</button>
-            <button data-category="Грим">Грим</button>
-          </div>
+          <div class="category-filters" role="group" aria-label="Фильтр по категории"></div>
           <label class="search-field">
             <span class="sr-only">Поиск по каталогу</span>
             <input type="search" placeholder="Найти в каталоге" data-search />
@@ -115,7 +108,7 @@
         </div>
         <div class="product-grid" data-product-grid></div>
         <div class="catalog-footer">
-          <button class="secondary-button" data-show-all>Показать витрину <span data-catalog-count>8 позиций</span></button>
+          <button class="secondary-button" data-show-all><span data-show-all-label>Показать весь каталог</span><span data-catalog-count>90 позиций</span></button>
           <p>Не нашли нужное? <button data-open-help>Пришлите список — найдём и добавим в одну смету.</button></p>
         </div>
       </section>
@@ -207,7 +200,7 @@
       <div class="cart-summary" data-cart-summary>
         <dl><div><dt>Аренда</dt><dd data-subtotal>0 ₽</dd></div><div><dt>Доставка по Москве</dt><dd data-delivery>0 ₽</dd></div><div><dt>Сервис и подготовка</dt><dd data-service>0 ₽</dd></div><div class="discount-row"><dt>Скидка за срок</dt><dd data-discount>0%</dd></div></dl>
         <div class="total-row"><span>Итого</span><strong data-total>0 ₽</strong></div>
-        <p>Финальная стоимость — после подтверждения адреса и наличия.</p>
+        <p data-cart-note>Финальная стоимость — после подтверждения адреса и наличия.</p>
         <button class="checkout-button" data-checkout>Запросить подтверждение <span>→</span></button>
         <button class="download-button" data-download>Скачать смету</button>
       </div>
