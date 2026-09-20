@@ -1,0 +1,6 @@
+.brand-logo,
+.admin-brand span {
+  background-image: url("assets/allset-wordmark.svg?v=1");
+  background-position: left center;
+  background-size: contain;
+}
