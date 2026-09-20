@@ -62,10 +62,18 @@ export const inventoryProducts = [
     published: true,
     featured: true,
   }),
-  product("bar-stool-high", "Табурет барный высокий", "furniture"),
-  product("full-length-mirror", "Ростовое зеркало", "furniture"),
-  product("tent-2x2", "Мобильный шатёр 2×2 м", "shelter"),
-  product("tent-3x3", "Мобильный шатёр 3×3 м", "shelter"),
+  product("bar-stool-high", "Табурет барный высокий", "furniture", {
+    image: "assets/catalog/bar-stool-high.webp",
+  }),
+  product("full-length-mirror", "Ростовое зеркало", "furniture", {
+    image: "assets/catalog/full-length-mirror.webp",
+  }),
+  product("tent-2x2", "Мобильный шатёр 2×2 м", "shelter", {
+    image: "assets/catalog/tent-2x2.webp",
+  }),
+  product("tent-3x3", "Мобильный шатёр 3×3 м", "shelter", {
+    image: "assets/catalog/tent-3x3.webp",
+  }),
   product("tent-3x6", "Мобильный шатёр 3×6 м", "shelter", {
     price: 7800,
     stock: 8,
@@ -73,12 +81,24 @@ export const inventoryProducts = [
     published: true,
     featured: true,
   }),
-  product("tent-gutter-3x3", "Водослив для мобильного шатра 3×3 м", "shelter"),
-  product("tent-gutter-3x6", "Водослив для мобильного шатра 3×6 м", "shelter"),
-  product("hanging-lamp-cable", "Лампа подвесная с проводом", "light"),
-  product("led-headlamp", "Налобный светодиодный фонарь", "light"),
-  product("desk-lamp", "Настольная лампа", "light"),
-  product("car-creeper", "Автомобильный подкат", "utility"),
+  product("tent-gutter-3x3", "Водослив для мобильного шатра 3×3 м", "shelter", {
+    image: "assets/catalog/tent-gutter-3x3.webp",
+  }),
+  product("tent-gutter-3x6", "Водослив для мобильного шатра 3×6 м", "shelter", {
+    image: "assets/catalog/tent-gutter-3x6.webp",
+  }),
+  product("hanging-lamp-cable", "Лампа подвесная с проводом", "light", {
+    image: "assets/catalog/hanging-lamp-cable.webp",
+  }),
+  product("led-headlamp", "Налобный светодиодный фонарь", "light", {
+    image: "assets/catalog/led-headlamp.webp",
+  }),
+  product("desk-lamp", "Настольная лампа", "light", {
+    image: "assets/catalog/desk-lamp.webp",
+  }),
+  product("car-creeper", "Автомобильный подкат", "utility", {
+    image: "assets/catalog/car-creeper.webp",
+  }),
   product("floor-fan", "Вентилятор напольный", "climate"),
   product("floor-fan-wheels", "Вентилятор напольный на колёсах", "climate"),
   product("portable-air-conditioner", "Мобильный напольный кондиционер", "climate"),

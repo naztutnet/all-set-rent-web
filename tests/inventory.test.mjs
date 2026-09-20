@@ -27,3 +27,9 @@ test("у каждой позиции задан временный положи�
     assert.equal(item.stockEstimated, true);
   });
 });
+
+test("на первом экране каталога у всех 12 позиций есть фотография", () => {
+  inventoryProducts.slice(0, 12).forEach((item) => {
+    assert.match(item.image || "", /^assets\/catalog\/.+\.webp$/, `${item.id}: нет фотографии`);
+  });
+});
