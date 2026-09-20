@@ -33,3 +33,10 @@ test("на первом экране каталога у всех 12 позиц�
     assert.match(item.image || "", /^assets\/catalog\/.+\.webp$/, `${item.id}: нет фотографии`);
   });
 });
+
+test("шатры используют чёрные версии фотографий со стенками", () => {
+  ["tent-2x2", "tent-3x3", "tent-3x6"].forEach((id) => {
+    const tent = inventoryProducts.find((item) => item.id === id);
+    assert.match(tent?.image || "", /-black\.webp$/, `${id}: подключена старая фотография`);
+  });
+});

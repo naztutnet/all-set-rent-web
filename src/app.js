@@ -1,5 +1,5 @@
-import { estimate, formatMoney, kits, products as kitProducts, rentalDays } from "./catalog.mjs";
-import { inventoryCategories, inventoryProducts } from "./inventory.mjs?v=5";
+import { estimate, formatMoney, kits, products as kitProducts, rentalDays } from "./catalog.mjs?v=6";
+import { inventoryCategories, inventoryProducts } from "./inventory.mjs?v=6";
 
 const categoryById = new Map(inventoryCategories.map((category) => [category.id, category]));
 const catalogProducts = inventoryProducts.map((item, index) => ({

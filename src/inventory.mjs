@@ -69,15 +69,15 @@ export const inventoryProducts = [
     image: "assets/catalog/full-length-mirror.webp",
   }),
   product("tent-2x2", "Мобильный шатёр 2×2 м", "shelter", {
-    image: "assets/catalog/tent-2x2.webp",
+    image: "assets/catalog/tent-2x2-black.webp",
   }),
   product("tent-3x3", "Мобильный шатёр 3×3 м", "shelter", {
-    image: "assets/catalog/tent-3x3.webp",
+    image: "assets/catalog/tent-3x3-black.webp",
   }),
   product("tent-3x6", "Мобильный шатёр 3×6 м", "shelter", {
     price: 7800,
     stock: 8,
-    image: "assets/catalog/tent-3x6.webp",
+    image: "assets/catalog/tent-3x6-black.webp",
     published: true,
     featured: true,
   }),

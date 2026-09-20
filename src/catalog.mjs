@@ -18,7 +18,7 @@ export const products = [
     unit: "шт. / смена",
     stock: 8,
     tag: "Монтаж включён",
-    image: "assets/catalog/tent-3x6.webp",
+    image: "assets/catalog/tent-3x6-black.webp",
     tone: "sky",
   },
   {

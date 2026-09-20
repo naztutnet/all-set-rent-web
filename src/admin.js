@@ -1,5 +1,5 @@
-import { loadAdminCatalog } from "./api-client.mjs?v=5";
-import { inventoryCategories } from "./inventory.mjs?v=5";
+import { loadAdminCatalog } from "./api-client.mjs?v=6";
+import { inventoryCategories } from "./inventory.mjs?v=6";
 
 const state = { items: [], query: "", category: "all", status: "all" };
 const $ = (selector) => document.querySelector(selector);

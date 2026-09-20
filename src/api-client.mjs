@@ -1,4 +1,4 @@
-import { inventoryProducts } from "./inventory.mjs?v=5";
+import { inventoryProducts } from "./inventory.mjs?v=6";
 
 const configuredRoot = document.querySelector('meta[name="allset-api"]')?.content?.trim();
 const storedRoot = localStorage.getItem("allset-api-root")?.trim();
