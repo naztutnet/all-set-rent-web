@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="robots" content="noindex,nofollow" />
+    <!-- Адрес API Бот-Склада. Пусто: экран работает на демо-данных. -->
+    <meta name="allset-api" content="" />
+    <meta name="theme-color" content="#f7f7f5" />
+    <title>ALLSET RENT · Склад</title>
+    <link rel="stylesheet" href="miniapp.css?v=1" />
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script type="module" src="src/miniapp.js?v=1"></script>
+  </head>
+  <body>
+    <header class="ma-top">
+      <a class="ma-brand" href="index.html" aria-label="ALLSET RENT"><span></span></a>
+      <div class="ma-user" data-user><span>…</span></div>
+    </header>
+
+    <div class="ma-mode" data-mode="loading" role="status"><i></i><span data-mode-text>Подключение к складу…</span></div>
+
+    <main class="ma-main">
+      <section class="ma-view" data-view="list" aria-labelledby="list-title">
+        <div class="ma-heading">
+          <p class="ma-eyebrow">Склад / Заявки</p>
+          <h1 id="list-title">Заявки</h1>
+        </div>
+
+        <div class="ma-stats" aria-label="Сводка">
+          <article><span>Открыто</span><strong data-stat="open">—</strong></article>
+          <article><span>К выдаче</span><strong data-stat="toIssue">—</strong><small>ед.</small></article>
+          <article><span>На руках</span><strong data-stat="onHand">—</strong><small>ед.</small></article>
+          <article><span>Ждут оплаты</span><strong data-stat="unpaid">—</strong></article>
+        </div>
+
+        <div class="ma-tools">
+          <div class="ma-segment" role="group" aria-label="Какие заявки показать">
+            <button type="button" class="is-active" data-scope="open">Открытые</button>
+            <button type="button" data-scope="all">Все</button>
+          </div>
+          <label class="ma-search"><span aria-hidden="true">⌕</span><input type="search" placeholder="Номер, проект, получатель" data-search /></label>
+        </div>
+
+        <div class="ma-list" data-list><div class="ma-empty">Загружаем заявки…</div></div>
+      </section>
+
+      <section class="ma-view" data-view="card" hidden>
+        <button type="button" class="ma-back" data-back><span aria-hidden="true">←</span> Все заявки</button>
+        <div data-card></div>
+      </section>
+
+      <section class="ma-view" data-view="message" hidden>
+        <div class="ma-message" data-message></div>
+      </section>
+    </main>
+  </body>
+</html>
