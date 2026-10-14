@@ -12,14 +12,26 @@ function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
 
-function readApiRoot() {
+// Где искать склад: адрес из <meta>, сохранённый адрес или тот же сервер, с
+// которого открыт экран. На сервере склада страница и API живут рядом, и
+// настраивать ничего не нужно; на GitHub Pages проверка ответит отказом, и
+// экран честно уйдёт в демо.
+async function resolveApiRoot() {
   const configured = document.querySelector('meta[name="allset-api"]')?.content?.trim();
   if (configured) return configured;
   try {
-    return localStorage.getItem("allset-api-root")?.trim() || "";
+    const stored = localStorage.getItem("allset-api-root")?.trim();
+    if (stored) return stored;
   } catch {
-    return "";
+    // хранилище недоступно: просто идём дальше
   }
+  try {
+    const response = await fetch("api/v1/health", { signal: AbortSignal.timeout(3000) });
+    if (response.ok && (await response.json())?.ok === true) return location.origin;
+  } catch {
+    // склада рядом нет
+  }
+  return "";
 }
 
 function setMode(mode, text) {
@@ -209,7 +221,7 @@ async function start() {
     tg.BackButton?.onClick(goList);
   }
 
-  const apiRoot = readApiRoot();
+  const apiRoot = await resolveApiRoot();
   const initData = tg?.initData || "";
   if (apiRoot && initData) {
     state.client = createClient({ apiRoot, initData });
