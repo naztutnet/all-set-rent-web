@@ -91,28 +91,69 @@ export class ApiError extends Error {
 export function createClient({ apiRoot, initData, fetchImpl = globalThis.fetch }) {
   const root = (apiRoot || "").replace(/\/$/, "");
 
-  async function get(path) {
+  async function call(path, body) {
+    const headers = { Accept: "application/json", Authorization: `tma ${initData}` };
+    if (body) headers["Content-Type"] = "application/json";
     const response = await fetchImpl(`${root}/api/v1${path}`, {
-      headers: { Accept: "application/json", Authorization: `tma ${initData}` },
+      method: body ? "POST" : "GET",
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
     });
-    let body = null;
+    let answer = null;
     try {
-      body = await response.json();
+      answer = await response.json();
     } catch {
-      body = null;
+      answer = null;
     }
     if (!response.ok) {
-      throw new ApiError(body?.detail || `Склад ответил ${response.status}`, response.status);
+      const detail = typeof answer?.detail === "string" ? answer.detail : "";
+      throw new ApiError(detail || `Склад ответил ${response.status}`, response.status);
     }
-    return body;
+    return answer;
   }
+  const get = (path) => call(path);
 
   return {
     mode: "live",
     me: () => get("/me"),
     requests: (scope = "all") => get(`/requests?scope=${encodeURIComponent(scope)}`).then((body) => body.requests),
     request: (id) => get(`/requests/${encodeURIComponent(id)}`),
+    issue: (id, body) => call(`/requests/${encodeURIComponent(id)}/issue`, body),
+    returnItems: (id, body) => call(`/requests/${encodeURIComponent(id)}/return`, body),
   };
+}
+
+// ---------------------------------------------------------------- действия
+
+// Одноразовый токен формы: повторная отправка той же формы не проведётся дважды.
+export function newActionToken() {
+  const bytes = new Uint8Array(8);
+  globalThis.crypto.getRandomValues(bytes);
+  return [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+export function canIssue(request) {
+  return [STATUS.approved, STATUS.partial].includes(request.status)
+    && request.lines.some((line) => line.to_issue > 0);
+}
+
+export function canReturn(request) {
+  return request.lines.some((line) => line.kind !== "расходник" && line.on_hand > 0);
+}
+
+// Черновик формы: по умолчанию «всё, что осталось», правится плюсом и минусом.
+export function issueDraft(request) {
+  return Object.fromEntries(request.lines.filter((line) => line.to_issue > 0).map((line) => [line.item_id, line.to_issue]));
+}
+
+export function returnDraft(request) {
+  return Object.fromEntries(
+    request.lines.filter((line) => line.kind !== "расходник" && line.on_hand > 0).map((line) => [line.item_id, { returned: line.on_hand, lost: 0 }]),
+  );
+}
+
+export function nonZero(numbers) {
+  return Object.fromEntries(Object.entries(numbers).filter(([, qty]) => qty > 0));
 }
 
 // ---------------------------------------------------------------- демо-данные
@@ -196,16 +237,64 @@ export const demoRequests = [
   ),
 ];
 
+function recount(request) {
+  for (const line of request.lines) {
+    line.on_hand = line.issued - line.returned - line.lost;
+    line.to_issue = line.qty - line.issued - line.cancelled;
+    line.lost_open = line.lost - line.written_off;
+    line.settled = line.on_hand <= 0 && line.to_issue <= 0 && line.lost_open <= 0;
+  }
+  const sum = (key) => request.lines.reduce((total, line) => total + Math.max(line[key], 0), 0);
+  request.on_hand = sum("on_hand");
+  request.to_issue = sum("to_issue");
+  request.lost_open = sum("lost_open");
+  request.closable = request.lines.every((line) => line.settled);
+  if (request.closable) request.status = STATUS.closed;
+  else if (request.to_issue > 0 && request.lines.some((line) => line.issued > 0)) request.status = STATUS.partial;
+  else if (request.to_issue === 0) request.status = STATUS.issued;
+  request.revision += 1;
+}
+
 export function createDemoClient() {
-  const byId = new Map(demoRequests.map((request) => [request.id, request]));
+  const byId = new Map(demoRequests.map((request) => [request.id, structuredClone(request)]));
+  const done = new Set();
+
+  function act(id, body, apply) {
+    const request = byId.get(id);
+    if (!request) throw new ApiError("Заявка не найдена.", 404);
+    if (done.has(body.action_token)) return { repeat: true, request: structuredClone(request) };
+    if (body.revision !== request.revision) throw new ApiError("Заявку успели изменить, пока экран был открыт.", 409);
+    apply(request);
+    done.add(body.action_token);
+    recount(request);
+    return { repeat: false, request: structuredClone(request) };
+  }
+
   return {
     mode: "demo",
     me: async () => demoUser,
-    requests: async () => demoRequests.map(({ lines, money, ...summary }) => summary),
+    requests: async () => [...byId.values()].map(({ lines, money, ...summary }) => structuredClone(summary)),
     request: async (id) => {
       const found = byId.get(id);
       if (!found) throw new ApiError("Заявка не найдена.", 404);
-      return found;
+      return structuredClone(found);
     },
+    issue: async (id, body) => act(id, body, (request) => {
+      for (const [itemId, qty] of Object.entries(body.lines)) {
+        const line = request.lines.find((row) => row.item_id === itemId);
+        if (!line || qty > line.to_issue) throw new ApiError(`«${line?.name || itemId}»: осталось выдать ${line?.to_issue ?? 0}, а не ${qty}.`, 400);
+        line.issued += qty;
+      }
+    }),
+    returnItems: async (id, body) => act(id, body, (request) => {
+      const ids = new Set([...Object.keys(body.returned || {}), ...Object.keys(body.lost || {})]);
+      for (const itemId of ids) {
+        const line = request.lines.find((row) => row.item_id === itemId);
+        const taken = (body.returned?.[itemId] || 0) + (body.lost?.[itemId] || 0);
+        if (!line || taken > line.on_hand) throw new ApiError(`«${line?.name || itemId}»: на руках ${line?.on_hand ?? 0}, а не ${taken}.`, 400);
+        line.returned += body.returned?.[itemId] || 0;
+        line.lost += body.lost?.[itemId] || 0;
+      }
+    }),
   };
 }

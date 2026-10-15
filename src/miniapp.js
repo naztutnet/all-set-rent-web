@@ -1,12 +1,12 @@
 import {
-  ApiError, createClient, createDemoClient, debt, filterRequests, formatDate, formatMoney,
-  formatPeriod, statusTone, summarize,
-} from "./warehouse-api.mjs?v=1";
+  ApiError, canIssue, canReturn, createClient, createDemoClient, debt, filterRequests, formatDate,
+  formatMoney, formatPeriod, issueDraft, newActionToken, nonZero, returnDraft, statusTone, summarize,
+} from "./warehouse-api.mjs?v=2";
 
 const tg = window.Telegram?.WebApp;
 const $ = (selector) => document.querySelector(selector);
 
-const state = { client: null, requests: [], scope: "open", query: "" };
+const state = { client: null, me: null, requests: [], scope: "open", query: "", card: null, form: null };
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
@@ -134,7 +134,16 @@ function moneyHtml(request) {
     </dl>`;
 }
 
+function actionsHtml(request) {
+  if (!state.me?.rights?.issue) return "";
+  const buttons = [];
+  if (canIssue(request)) buttons.push(`<button type="button" class="ma-action" data-act="issue">Выдать<small>осталось ${request.to_issue} ед.</small></button>`);
+  if (canReturn(request)) buttons.push(`<button type="button" class="ma-action ma-action--light" data-act="return">Принять возврат<small>на руках ${request.on_hand} ед.</small></button>`);
+  return buttons.length ? `<section class="ma-actions">${buttons.join("")}</section>` : "";
+}
+
 function renderCard(request) {
+  state.card = request;
   const phone = request.recipient_phone
     ? `<a href="tel:${escapeHtml(request.recipient_phone)}">${escapeHtml(request.recipient_phone)}</a>`
     : "";
@@ -166,7 +175,167 @@ function renderCard(request) {
 
     ${request.comment ? `<section class="ma-block"><h2>Комментарий</h2><p>${escapeHtml(request.comment)}</p></section>` : ""}
 
-    <div class="ma-note"><strong>Действия скоро появятся здесь</strong>Согласование, выдача, возврат и оплата пока проводятся в боте. Следующим шагом они переедут сюда с теми же проверками.</div>`;
+    ${actionsHtml(request)}
+    <div class="ma-note"><strong>Остальное пока в боте</strong>Согласование, снятие остатка, решение по утрате и оплата пока проводятся кнопками бота. Они переедут сюда следующими шагами.</div>`;
+}
+
+// ---------------------------------------------------------------- выдача и возврат
+
+function stepper(key, field, value, max, label) {
+  return `
+    <div class="ma-step">
+      <span>${label}</span>
+      <div>
+        <button type="button" data-step="-1" data-key="${escapeHtml(key)}" data-field="${field}" ${value <= 0 ? "disabled" : ""} aria-label="Меньше">−</button>
+        <b>${value}</b>
+        <button type="button" data-step="1" data-key="${escapeHtml(key)}" data-field="${field}" ${value >= max ? "disabled" : ""} aria-label="Больше">+</button>
+      </div>
+    </div>`;
+}
+
+function formTotals() {
+  const { kind, values } = state.form;
+  if (kind === "issue") return { main: Object.values(values).reduce((sum, qty) => sum + qty, 0), lost: 0 };
+  const rows = Object.values(values);
+  return { main: rows.reduce((sum, row) => sum + row.returned, 0), lost: rows.reduce((sum, row) => sum + row.lost, 0) };
+}
+
+function renderSheet() {
+  const sheet = $("[data-sheet]");
+  if (!state.form) {
+    sheet.hidden = true;
+    document.body.classList.remove("is-locked");
+    return;
+  }
+  const { kind, values, busy, error } = state.form;
+  const request = state.card;
+  const rows = request.lines
+    .filter((line) => line.item_id in values)
+    .map((line) => {
+      if (kind === "issue") {
+        return `<div class="ma-sheet-line"><strong>${escapeHtml(line.name)}</strong><small>осталось выдать ${line.to_issue} ${escapeHtml(line.unit)}</small>
+          ${stepper(line.item_id, "qty", values[line.item_id], line.to_issue, "Выдаём")}</div>`;
+      }
+      const row = values[line.item_id];
+      return `<div class="ma-sheet-line"><strong>${escapeHtml(line.name)}</strong><small>на руках ${line.on_hand} ${escapeHtml(line.unit)}</small>
+        ${stepper(line.item_id, "returned", row.returned, line.on_hand - row.lost, "Вернули")}
+        ${stepper(line.item_id, "lost", row.lost, line.on_hand - row.returned, "Утрата")}</div>`;
+    })
+    .join("");
+  const totals = formTotals();
+  const nothing = totals.main + totals.lost === 0;
+  const label = kind === "issue"
+    ? `Выдать ${totals.main} ед.`
+    : `Принять ${totals.main} ед.${totals.lost ? ` · утрата ${totals.lost}` : ""}`;
+  const comment = kind === "return"
+    ? `<label class="ma-comment"><span>Комментарий${totals.lost ? " (что случилось)" : ""}</span><textarea rows="2" maxlength="500" data-comment>${escapeHtml(state.form.comment || "")}</textarea></label>`
+    : "";
+  sheet.innerHTML = `
+    <div class="ma-sheet-backdrop" data-close></div>
+    <div class="ma-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+      <div class="ma-sheet-head">
+        <div><p class="ma-eyebrow">Заявка ${escapeHtml(request.id)}</p><h2 id="sheet-title">${kind === "issue" ? "Выдача" : "Возврат"}</h2></div>
+        <button type="button" class="ma-close" data-close aria-label="Закрыть">×</button>
+      </div>
+      <div class="ma-sheet-body">${rows}${comment}</div>
+      ${totals.lost ? `<p class="ma-warn">Утраченное не вернётся на полку и будет ждать решения супервайзера.</p>` : ""}
+      ${error ? `<p class="ma-error" role="alert">${escapeHtml(error)}</p>` : ""}
+      <button type="button" class="ma-submit" data-submit ${busy || nothing ? "disabled" : ""}>${busy ? "Провожу…" : label}</button>
+    </div>`;
+  sheet.hidden = false;
+  document.body.classList.add("is-locked");
+}
+
+function openForm(kind) {
+  $("[data-toast]").classList.remove("is-visible");
+  const request = state.card;
+  state.form = {
+    kind,
+    token: newActionToken(),
+    revision: request.revision,
+    values: kind === "issue" ? issueDraft(request) : returnDraft(request),
+    comment: "",
+    busy: false,
+    error: "",
+  };
+  renderSheet();
+}
+
+function closeForm() {
+  state.form = null;
+  renderSheet();
+}
+
+function changeStep(key, field, delta) {
+  const { kind, values } = state.form;
+  const line = state.card.lines.find((row) => row.item_id === key);
+  if (kind === "issue") {
+    values[key] = Math.min(Math.max(values[key] + delta, 0), line.to_issue);
+  } else {
+    const row = values[key];
+    const other = field === "returned" ? row.lost : row.returned;
+    row[field] = Math.min(Math.max(row[field] + delta, 0), line.on_hand - other);
+  }
+  state.form.error = "";
+  tg?.HapticFeedback?.selectionChanged();
+  renderSheet();
+}
+
+function toast(text) {
+  const box = $("[data-toast]");
+  box.textContent = text;
+  box.classList.add("is-visible");
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => box.classList.remove("is-visible"), 2600);
+}
+
+async function refreshList() {
+  try {
+    state.requests = await state.client.requests("all");
+    renderStats();
+    renderList();
+  } catch {
+    // список обновится при следующем открытии
+  }
+}
+
+async function submitForm() {
+  const form = state.form;
+  if (!form || form.busy) return;
+  const request = state.card;
+  let body;
+  if (form.kind === "issue") {
+    body = { revision: form.revision, action_token: form.token, lines: nonZero(form.values) };
+  } else {
+    const returned = nonZero(Object.fromEntries(Object.entries(form.values).map(([id, row]) => [id, row.returned])));
+    const lost = nonZero(Object.fromEntries(Object.entries(form.values).map(([id, row]) => [id, row.lost])));
+    body = { revision: form.revision, action_token: form.token, returned, lost, comment: form.comment.trim() };
+  }
+  form.busy = true;
+  form.error = "";
+  renderSheet();
+  try {
+    const result = form.kind === "issue"
+      ? await state.client.issue(request.id, body)
+      : await state.client.returnItems(request.id, body);
+    closeForm();
+    renderCard(result.request);
+    tg?.HapticFeedback?.notificationOccurred("success");
+    toast(result.repeat ? "Это уже было проведено" : form.kind === "issue" ? "Выдано" : "Возврат принят");
+    refreshList();
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 409) {
+      closeForm();
+      renderCard(await state.client.request(request.id));
+      toast("Заявку изменили, пока экран был открыт. Данные обновлены");
+      return;
+    }
+    // Токен формы сохраняется: повтор после обрыва связи не проведёт действие дважды.
+    form.busy = false;
+    form.error = error.message || "Не получилось. Попробуйте ещё раз.";
+    tg?.HapticFeedback?.notificationOccurred("error");
+    renderSheet();
+  }
 }
 
 // ---------------------------------------------------------------- навигация
@@ -206,6 +375,10 @@ async function route() {
 }
 
 function goList() {
+  if (state.form) {
+    if (!state.form.busy) closeForm();
+    return;
+  }
   if (location.hash) history.pushState(null, "", location.pathname + location.search);
   route();
 }
@@ -231,6 +404,7 @@ async function start() {
 
   try {
     const me = await state.client.me();
+    state.me = me;
     $("[data-user]").innerHTML = `<strong>${escapeHtml(me.name)}</strong><small>${escapeHtml(me.role_title)}</small>`;
     state.requests = await state.client.requests("all");
     if (state.client.mode === "live") setMode("live", "Данные со склада · только просмотр");
@@ -251,6 +425,24 @@ async function start() {
 }
 
 document.addEventListener("click", (event) => {
+  const act = event.target.closest("[data-act]");
+  if (act) {
+    openForm(act.dataset.act);
+    return;
+  }
+  const step = event.target.closest("[data-step]");
+  if (step) {
+    changeStep(step.dataset.key, step.dataset.field, Number(step.dataset.step));
+    return;
+  }
+  if (event.target.closest("[data-submit]")) {
+    submitForm();
+    return;
+  }
+  if (event.target.closest("[data-close]")) {
+    if (!state.form?.busy) closeForm();
+    return;
+  }
   const open = event.target.closest("[data-open]");
   if (open) {
     location.hash = `#/r/${encodeURIComponent(open.dataset.open)}`;
@@ -265,6 +457,10 @@ document.addEventListener("click", (event) => {
     return;
   }
   if (event.target.closest("[data-back]")) goList();
+});
+
+document.addEventListener("input", (event) => {
+  if (event.target.matches("[data-comment]") && state.form) state.form.comment = event.target.value;
 });
 
 $("[data-search]").addEventListener("input", (event) => {
