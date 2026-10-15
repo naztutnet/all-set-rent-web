@@ -85,3 +85,14 @@ test("демо: выдача, повтор формы и устаревший э
   assert.notEqual(back.request.status, STATUS.closed, "утрата без решения держит заявку открытой");
   assert.equal(demoRequests.find((r) => r.id === "З-0012").lines[0].issued, 2, "исходные демо-данные не меняются");
 });
+
+test("решения по заявке: кнопки по правам и состоянию", async () => {
+  const { decisionsFor } = await import("../src/warehouse-api.mjs");
+  const boss = { approve: true, draft: true, losses: true, money: true };
+  const draft = demoRequests.find((r) => r.status === STATUS.draft);
+  assert.ok(decisionsFor(draft, boss).approve && decisionsFor(draft, boss).cancel && !decisionsFor(draft, boss).pay);
+  assert.ok(!decisionsFor(draft, { draft: true }).approve, "сотрудник не согласует");
+  const partial = demoRequests.find((r) => r.status === STATUS.partial);
+  assert.ok(decisionsFor(partial, boss).remainder && !decisionsFor(partial, boss).cancel, "с выданным не отменить, только снять остаток");
+  assert.ok(!decisionsFor(partial, { approve: false }).pay, "без права на деньги платёж не показываем");
+});

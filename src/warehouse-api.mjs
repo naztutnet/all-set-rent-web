@@ -120,6 +120,27 @@ export function createClient({ apiRoot, initData, fetchImpl = globalThis.fetch }
     request: (id) => get(`/requests/${encodeURIComponent(id)}`),
     issue: (id, body) => call(`/requests/${encodeURIComponent(id)}/issue`, body),
     returnItems: (id, body) => call(`/requests/${encodeURIComponent(id)}/return`, body),
+    approve: (id, body) => call(`/requests/${encodeURIComponent(id)}/approve`, body),
+    cancel: (id, body) => call(`/requests/${encodeURIComponent(id)}/cancel`, body),
+    cancelRemainder: (id, body) => call(`/requests/${encodeURIComponent(id)}/cancel-remainder`, body),
+    resolveLoss: (id, body) => call(`/requests/${encodeURIComponent(id)}/resolve-loss`, body),
+    payments: (id) => get(`/requests/${encodeURIComponent(id)}/payments`).then((answer) => answer.payments),
+    addPayment: (id, body) => call(`/requests/${encodeURIComponent(id)}/payments`, body),
+    reversePayment: (id, paymentId, body) =>
+      call(`/requests/${encodeURIComponent(id)}/payments/${encodeURIComponent(paymentId)}/reverse`, body),
+  };
+}
+
+// Какие решения доступны по заявке. Кнопки рисуются по ним, решает всегда склад.
+export function decisionsFor(request, rights = {}) {
+  const issued = request.lines.some((line) => line.issued > 0);
+  return {
+    approve: Boolean(rights.approve) && request.status === STATUS.draft && request.lines.length > 0,
+    cancel: (request.status === STATUS.draft && Boolean(rights.draft))
+      || (request.status === STATUS.approved && !issued && Boolean(rights.approve)),
+    remainder: Boolean(rights.approve) && request.status === STATUS.partial && request.to_issue > 0,
+    loss: Boolean(rights.losses) && request.lost_open > 0,
+    pay: Boolean(rights.money) && ![STATUS.draft, STATUS.cancelled].includes(request.status),
   };
 }
 
@@ -258,6 +279,7 @@ function recount(request) {
 export function createDemoClient() {
   const byId = new Map(demoRequests.map((request) => [request.id, structuredClone(request)]));
   const done = new Set();
+  const paymentsById = new Map([["З-0012", [{ id: "PAY-1", amount: "30000.00", date: "2026-10-11", author: "Саша", comment: "безнал", reverses: "", reversed: false }]]]);
 
   function act(id, body, apply) {
     const request = byId.get(id);
@@ -286,6 +308,45 @@ export function createDemoClient() {
         line.issued += qty;
       }
     }),
+    approve: async (id, body) => act(id, { ...body, action_token: `approve-${id}-${body.revision}` }, (request) => {
+      if (request.status !== STATUS.draft) throw new ApiError("Согласовать можно только черновик.", 400);
+      request.status = STATUS.approved;
+      request.priced = true;
+    }),
+    cancel: async (id, body) => act(id, { ...body, action_token: `cancel-${id}-${body.revision}` }, (request) => {
+      request.status = STATUS.cancelled;
+    }),
+    cancelRemainder: async (id, body) => act(id, { ...body, action_token: `rest-${id}-${body.revision}` }, (request) => {
+      for (const line of request.lines) line.cancelled += Math.max(line.to_issue, 0);
+    }),
+    resolveLoss: async (id, body) => act(id, body, (request) => {
+      const line = request.lines.find((row) => row.item_id === body.item_id);
+      if (!line || body.qty > line.lost_open) throw new ApiError("Столько утраты по позиции нет.", 400);
+      line.written_off += body.qty;
+    }),
+    payments: async (id) => structuredClone(paymentsById.get(id) || []),
+    addPayment: async (id, body) => {
+      const request = byId.get(id);
+      if (done.has(body.action_token)) return { repeat: true, request: structuredClone(request) };
+      done.add(body.action_token);
+      const list = paymentsById.get(id) || [];
+      list.push({ id: `PAY-${list.length + 1}`, amount: Number(body.amount).toFixed(2), date: "сегодня", author: "Демо", comment: [body.method, body.comment].filter(Boolean).join(" · "), reverses: "", reversed: false });
+      paymentsById.set(id, list);
+      request.paid = (Number(request.paid) + Number(body.amount)).toFixed(2);
+      request.money.paid = request.paid;
+      return { repeat: false, request: structuredClone(request) };
+    },
+    reversePayment: async (id, paymentId) => {
+      const request = byId.get(id);
+      const list = paymentsById.get(id) || [];
+      const original = list.find((payment) => payment.id === paymentId);
+      if (!original || original.reversed) throw new ApiError("Этот платёж уже исправлен.", 400);
+      original.reversed = true;
+      list.push({ id: `PAY-${list.length + 1}`, amount: (-Number(original.amount)).toFixed(2), date: "сегодня", author: "Демо", comment: "сторно", reverses: paymentId, reversed: false });
+      request.paid = (Number(request.paid) - Number(original.amount)).toFixed(2);
+      request.money.paid = request.paid;
+      return { repeat: false, request: structuredClone(request) };
+    },
     returnItems: async (id, body) => act(id, body, (request) => {
       const ids = new Set([...Object.keys(body.returned || {}), ...Object.keys(body.lost || {})]);
       for (const itemId of ids) {

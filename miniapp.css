@@ -252,3 +252,22 @@ body.is-locked { overflow: hidden; }
   font-size: 13px; text-align: center; visibility: hidden; opacity: 0; transform: translate(-50%, 12px); transition: .2s;
 }
 .ma-toast.is-visible { visibility: visible; opacity: 1; transform: translate(-50%, 0); }
+
+.ma-action--ghost { color: var(--red); background: transparent; border-color: #e3c8c0; }
+.ma-action--ghost small { color: var(--muted); }
+.ma-submit.is-danger { background: var(--red); }
+.ma-confirm { margin: 0; font-size: 14px; line-height: 1.5; }
+.ma-muted { margin: 0; color: var(--muted); font-size: 13px; }
+.ma-amount { display: grid; gap: 6px; margin-top: 6px; }
+.ma-amount span { color: var(--muted); font-size: 12px; }
+.ma-amount input { width: 100%; height: 46px; padding: 0 12px; border: 1px solid var(--ink); border-radius: var(--radius-sm); font: inherit; font-size: 20px; font-weight: 600; }
+.ma-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.ma-chips .ma-chip { padding: 8px 12px; font-size: 12px; color: var(--ink); background: var(--white); }
+.ma-chips .ma-chip.is-on { color: var(--white); background: var(--ink); border-color: var(--ink); }
+.ma-payments { background: var(--white); border: 1px solid var(--ink); border-radius: var(--radius-md); overflow: hidden; }
+.ma-payment { padding: 11px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); }
+.ma-payment:last-child { border-bottom: 0; }
+.ma-payment div { display: grid; gap: 2px; }
+.ma-payment small { color: var(--muted); font-size: 11px; }
+.ma-payment.is-reversed b { text-decoration: line-through; color: var(--muted); }
+.ma-link { color: var(--red); font-size: 12px; text-decoration: underline; }
