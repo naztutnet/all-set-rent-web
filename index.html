@@ -6,9 +6,9 @@
     <meta name="description" content="ALL SET RENT — оборудование и готовые комплекты для съёмочных площадок с доставкой по Москве." />
     <meta name="theme-color" content="#f7f7f5" />
     <title>ALLSET RENT — всё для съёмочной смены</title>
-    <link rel="stylesheet" href="theme.css?v=7" />
+    <link rel="stylesheet" href="theme.css?v=8" />
     <link rel="stylesheet" href="logo.css?v=1" />
-    <script type="module" src="src/app.js?v=7"></script>
+    <script type="module" src="src/app.js?v=8"></script>
   </head>
   <body>
     <div class="preview-bar" data-preview-bar hidden>
@@ -126,6 +126,12 @@
           </div>
           <p>Сезон берём из дат выше. Получите три варианта с ценой за весь срок и проверкой наличия. Любой вариант можно поправить в смете.</p>
         </div>
+        <form class="assist-form" data-assist-form hidden>
+          <label><span>Опишите съёмку своими словами</span><textarea name="text" rows="3" minlength="3" maxlength="1000" required placeholder="Например: 3 ночи в лесу под Звенигородом, группа 70 человек, нужен тёплый шатёр под кейтеринг"></textarea></label>
+          <button type="submit" class="primary-button">Подобрать по описанию <span>→</span></button>
+          <p class="assist-answer" data-assist-answer aria-live="polite"></p>
+        </form>
+        <p class="assist-or" data-assist-or hidden>или заполните сами</p>
         <form class="picker-form" data-picker-form>
           <label><span>Сколько человек в группе</span><input name="people" type="number" min="5" max="400" step="1" value="50" required /></label>
           <fieldset><legend>Где снимаем</legend>

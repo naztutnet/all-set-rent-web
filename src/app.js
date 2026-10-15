@@ -1,7 +1,7 @@
 import { estimate, formatMoney, kits, products as kitProducts, rentalDays } from "./catalog.mjs?v=6";
 import { inventoryCategories, inventoryProducts } from "./inventory.mjs?v=6";
-import { createStorefront, detectApi, extraCategories, kitView, lineTotal, liveKits, toProduct } from "./storefront-live.mjs?v=2";
-import { buildVariants, describeContext } from "./picker.mjs?v=1";
+import { createStorefront, detectApi, extraCategories, kitView, lineTotal, liveKits, toProduct } from "./storefront-live.mjs?v=3";
+import { buildVariants, describeContext } from "./picker.mjs?v=2";
 
 const allCategories = [...inventoryCategories, ...extraCategories];
 const categoryById = new Map(allCategories.map((category) => [category.id, category]));
@@ -477,6 +477,62 @@ $("[data-picker-form]").addEventListener("submit", (event) => {
   $("[data-picker-grid]").scrollIntoView({ behavior: "smooth", block: "nearest" });
 });
 
+// ---------------------------------------------------------------- помощник
+
+// Клиент пишет про съёмку своими словами, склад разбирает текст в те же поля,
+// что у формы подбора. Набор и цену считает та же таблица правил.
+async function setupAssist() {
+  if (!live.store || !(await live.store.assistEnabled())) return;
+  $("[data-assist-form]").hidden = false;
+  $("[data-assist-or]").hidden = false;
+}
+
+function fillPickerForm(result) {
+  const form = $("[data-picker-form]");
+  form.elements.people.value = result.people;
+  if (result.location) form.querySelector(`[name="location"][value="${result.location}"]`).checked = true;
+  form.elements.night.checked = result.night;
+}
+
+async function submitAssist(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const answer = $("[data-assist-answer]");
+  const button = form.querySelector("button[type=submit]");
+  button.disabled = true;
+  button.firstChild.textContent = "Разбираем описание ";
+  answer.className = "assist-answer";
+  answer.textContent = "";
+  try {
+    const result = await live.store.assist(form.elements.text.value);
+    if (!result.understood) {
+      answer.classList.add("is-question");
+      answer.textContent = result.question;
+      form.elements.text.focus();
+      return;
+    }
+    fillPickerForm(result);
+    if (result.date_out && result.date_back) {
+      startDate.value = result.date_out;
+      endDate.value = result.date_back;
+      updateDates();
+      await refreshAvailability();
+    }
+    picker.input = { ...pickerInput(), extras: result.extras };
+    renderPicker();
+    answer.textContent = result.note || "Набор собран по описанию. Проверьте даты вверху страницы.";
+    $("[data-picker-grid]").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  } catch (failure) {
+    answer.classList.add("is-error");
+    answer.textContent = failure.message;
+  } finally {
+    button.disabled = false;
+    button.firstChild.textContent = "Подобрать по описанию ";
+  }
+}
+
+$("[data-assist-form]").addEventListener("submit", submitAssist);
+
 // ---------------------------------------------------------------- живой склад
 
 async function refreshAvailability() {
@@ -527,6 +583,7 @@ async function connectWarehouse() {
     document.body.classList.add("is-live");
     renderCategoryFilters();
     await refreshAvailability();
+    setupAssist();
   } catch {
     // склад не ответил: остаёмся на описи сайта
   }

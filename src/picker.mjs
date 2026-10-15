@@ -91,7 +91,8 @@ export function contextFor({ people, location, night, dateOut, dateBack }) {
   };
 }
 
-// Варианты набора. `products` — позиции склада по ID (цена, расходник), `free` —
+// Варианты набора. `input.extras` — позиции, о которых клиент попросил сам.
+// `products` — позиции склада по ID (цена, расходник), `free` —
 // сколько свободно на даты. Позиции, которых нет на складе, честно пропускаются,
 // нехватка видна в каждом варианте.
 export function buildVariants(input, products, free = {}) {
@@ -107,6 +108,16 @@ export function buildVariants(input, products, free = {}) {
       row.qty += qty;
       row.why.push(rule.why);
       merged.set(rule.id, row);
+    }
+    // Просьбы клиента сверх правил (их разбирает помощник): количество как
+    // попросили, без множителя варианта, но не меньше, чем уже насчитали правила.
+    for (const extra of input.extras || []) {
+      const product = products.get(extra.item_id);
+      if (!product) continue;
+      const row = merged.get(extra.item_id) || { product, qty: 0, why: [] };
+      row.qty = Math.max(row.qty, extra.qty);
+      row.why.push(extra.why || "по просьбе клиента");
+      merged.set(extra.item_id, row);
     }
     const rows = [...merged.values()].map((row) => ({
       ...row,

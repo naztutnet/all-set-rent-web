@@ -53,3 +53,20 @@ test("комплект: цена суммой, сколько собрать р�
   assert.equal(kitView(radio, new Map(), {}), null, "без позиций склада комплект не показывается");
   for (const kit of liveKits) assert.ok(kit.items.every(([id, qty]) => /^ITM-\d{4}$/.test(id) && qty > 0), kit.id);
 });
+
+test("помощник: включён ли и разбор текста", async () => {
+  const calls = [];
+  const fetchImpl = async (url, options) => {
+    calls.push({ url, method: options.method, body: options.body });
+    if (options.method === "GET") return new Response(JSON.stringify({ enabled: true }), { status: 200 });
+    return new Response(JSON.stringify({ understood: true, people: 70 }), { status: 200 });
+  };
+  const store = createStorefront("https://sklad.example", fetchImpl);
+  assert.equal(await store.assistEnabled(), true);
+  assert.equal(calls[0].url, "https://sklad.example/api/v1/public/assist");
+  assert.equal((await store.assist("70 человек в лесу")).people, 70);
+  assert.deepEqual(JSON.parse(calls[1].body), { text: "70 человек в лесу" });
+
+  const offline = createStorefront("https://sklad.example", async () => { throw new Error("нет сети"); });
+  assert.equal(await offline.assistEnabled(), false, "склад не ответил: помощника не показываем");
+});

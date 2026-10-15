@@ -141,6 +141,8 @@ export function createStorefront(root, fetchImpl = globalThis.fetch) {
     availability: (dateOut, dateBack) =>
       call(`/availability?date_out=${encodeURIComponent(dateOut)}&date_back=${encodeURIComponent(dateBack)}`).then((body) => body.free),
     order: (body) => call("/orders", body),
+    assistEnabled: () => call("/assist").then((body) => body.enabled === true).catch(() => false),
+    assist: (text) => call("/assist", { text }),
   };
 }
 

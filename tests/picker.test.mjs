@@ -40,3 +40,22 @@ test("число людей держится в разумных граница�
   assert.equal(contextFor({ people: 2, dateOut: "2026-12-01", dateBack: "2026-12-01" }).people, 5);
   assert.equal(contextFor({ people: 99999, dateOut: "2026-12-01", dateBack: "2026-12-01" }).people, 400);
 });
+
+test("просьбы клиента добавляются к правилам, не уменьшая их", () => {
+  const input = {
+    people: 50, location: "nature", dateOut: "2026-12-01", dateBack: "2026-12-02",
+    extras: [
+      { item_id: "ITM-0047", qty: 2, why: "просили вентиляторы для грима" },
+      { item_id: "ITM-0020", qty: 1, why: "стул режиссёру" },
+      { item_id: "ITM-9999", qty: 3, why: "нет на складе" },
+    ],
+  };
+  const [min, opt] = buildVariants(input, products);
+  const fan = opt.rows.find((row) => row.product.id === "ITM-0047");
+  assert.equal(fan.qty, 2, "зимой вентиляторов по правилам нет, но клиент попросил");
+  assert.ok(fan.why.includes("просили вентиляторы для грима"));
+  assert.equal(min.rows.find((row) => row.product.id === "ITM-0047").qty, 2, "просьба без множителя варианта");
+  const chairs = opt.rows.find((row) => row.product.id === "ITM-0020");
+  assert.ok(chairs.qty > 1, "просьба не уменьшает посчитанное правилами");
+  assert.ok(!opt.rows.some((row) => row.product.id === "ITM-9999"), "чего нет в каталоге, того нет в наборе");
+});
