@@ -38,3 +38,18 @@ test("клиент витрины говорит со складом и пони
   await assert.rejects(store.order({ lines: [] }), (error) => error.status === 409 && /не хватает/.test(error.message));
   assert.equal(calls[1].method, "POST");
 });
+
+test("комплект: цена суммой, сколько собрать решает самая редкая позиция", async () => {
+  const { kitView, liveKits } = await import("../src/storefront-live.mjs");
+  const radio = liveKits.find((kit) => kit.id === "kit-radio");
+  const products = new Map([
+    ["ITM-0077", { id: "ITM-0077", name: "Рация Kenwood", price: 200 }],
+    ["ITM-0056", { id: "ITM-0056", name: "USB зарядная станция 10 портов", price: 300 }],
+    ["ITM-0063", { id: "ITM-0063", name: "Громкоговоритель", price: 400 }],
+  ]);
+  const view = kitView(radio, products, { "ITM-0077": 16, "ITM-0056": 4, "ITM-0063": 1 });
+  assert.equal(view.price, 2300);
+  assert.equal(view.available, 1, "громкоговоритель один: собрать можно один комплект");
+  assert.equal(kitView(radio, new Map(), {}), null, "без позиций склада комплект не показывается");
+  for (const kit of liveKits) assert.ok(kit.items.every(([id, qty]) => /^ITM-\d{4}$/.test(id) && qty > 0), kit.id);
+});

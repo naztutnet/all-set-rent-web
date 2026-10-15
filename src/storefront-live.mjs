@@ -143,3 +143,48 @@ export function createStorefront(root, fetchImpl = globalThis.fetch) {
     order: (body) => call("/orders", body),
   };
 }
+
+// Комплекты — кнопка «положить набор в корзину» из реальных позиций склада.
+// Цена — сумма позиций за сутки, без скидки. Состав временный: ждём варианты
+// от команды, правится только здесь.
+export const liveKits = [
+  {
+    id: "kit-camp",
+    name: "Базовый лагерь",
+    label: "Площадка",
+    description: "Укрытие, столы и стулья на 10 человек, питание для техники.",
+    items: [["ITM-0026", 1], ["ITM-0015", 2], ["ITM-0020", 10], ["ITM-0030", 1], ["ITM-0034", 2]],
+  },
+  {
+    id: "kit-heat-light",
+    name: "Тепло и свет",
+    label: "Холод и ночь",
+    description: "Две пушки, два прожектора и кабель до розетки.",
+    items: [["ITM-0054", 2], ["ITM-0030", 2], ["ITM-0046", 2], ["ITM-0034", 1]],
+  },
+  {
+    id: "kit-radio",
+    name: "Связь",
+    label: "Группа",
+    description: "Восемь раций, зарядная станция и громкоговоритель.",
+    items: [["ITM-0077", 8], ["ITM-0056", 1], ["ITM-0063", 1]],
+  },
+  {
+    id: "kit-coffee",
+    name: "Кофе-точка",
+    label: "Быт",
+    description: "Кулер, кофемашина, чайник и стол под всё это.",
+    items: [["ITM-0070", 1], ["ITM-0066", 1], ["ITM-0085", 1], ["ITM-0013", 1]],
+  },
+];
+
+// Сколько комплектов можно выдать на даты: решает самая редкая позиция набора.
+export function kitView(kit, products, free) {
+  const rows = kit.items.map(([id, qty]) => ({ product: products.get(id), qty }));
+  if (rows.some((row) => !row.product)) return null;
+  const price = rows.reduce((sum, row) => sum + row.product.price * row.qty, 0);
+  const available = free
+    ? Math.min(...rows.map((row) => Math.floor((free[row.product.id] ?? 0) / row.qty)))
+    : null;
+  return { ...kit, rows, price, available };
+}

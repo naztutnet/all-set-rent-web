@@ -102,7 +102,7 @@ h1,h2,h3,strong,b{font-weight:600}
 }
 
 /* Живой склад: наличие на даты и заявка */
-body.is-live [data-open-help],body.is-live .footer-links a[href="#kits"]{display:none}
+body.is-live [data-open-help]{display:none}
 .stock.is-out{color:#a2412f}.stock.is-out::before{background:#a2412f}
 .add-button:disabled{background:#c9c9c4;cursor:not-allowed}
 .checkout-button:disabled{background:#b9b9b4;cursor:not-allowed}
@@ -120,3 +120,5 @@ body.is-live [data-open-help],body.is-live .footer-links a[href="#kits"]{display
 .order-done p,.order-offline p{color:var(--muted);font-size:13px;line-height:1.55}
 .order-done p:first-of-type{color:var(--ink);font-weight:700}
 .order-dialog [hidden],[data-estimate-extra][hidden]{display:none!important}
+.kit-add:disabled{opacity:.45;cursor:not-allowed}
+@media(min-width:821px){.kit-grid:has(> :nth-child(4):last-child){grid-template-columns:repeat(2,1fr)}}

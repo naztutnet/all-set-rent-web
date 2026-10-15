@@ -1,6 +1,6 @@
 import { estimate, formatMoney, kits, products as kitProducts, rentalDays } from "./catalog.mjs?v=6";
 import { inventoryCategories, inventoryProducts } from "./inventory.mjs?v=6";
-import { createStorefront, detectApi, extraCategories, lineTotal, toProduct } from "./storefront-live.mjs?v=1";
+import { createStorefront, detectApi, extraCategories, kitView, lineTotal, liveKits, toProduct } from "./storefront-live.mjs?v=2";
 
 const allCategories = [...inventoryCategories, ...extraCategories];
 const categoryById = new Map(allCategories.map((category) => [category.id, category]));
@@ -125,7 +125,25 @@ function renderCategoryFilters() {
   ].join("");
 }
 
+function renderLiveKits() {
+  const views = liveKits.map((kit) => kitView(kit, selectableProducts, live.loading ? null : live.free)).filter(Boolean);
+  $("#kits").hidden = !views.length;
+  kitGrid.innerHTML = views.map((kit, index) => {
+    const items = kit.rows.map((row) => `<li>${row.product.name} × ${row.qty}</li>`).join("");
+    const left = kit.available === null ? "проверяем даты…" : kit.available > 0 ? `свободно комплектов: ${kit.available}` : "на эти даты не собрать";
+    return `<article class="kit-card" data-code="0${index + 1}">
+      <div class="kit-label"><span>${kit.label}</span><span>${left}</span></div>
+      <h3>${kit.name}</h3><p>${kit.description}</p><ul class="kit-items">${items}</ul>
+      <div class="kit-bottom"><div class="kit-price"><span>за сутки</span><strong>${formatMoney(kit.price)}</strong></div><button class="kit-add" data-add-kit="${kit.id}" ${kit.available === 0 ? "disabled" : ""}>Добавить комплект</button></div>
+    </article>`;
+  }).join("");
+}
+
 function renderKits() {
+  if (live.store) {
+    renderLiveKits();
+    return;
+  }
   kitGrid.innerHTML = kits.map((kit, index) => {
     const items = kit.itemIds.map((id, i) => {
       const product = kitProducts.find((entry) => entry.id === id);
@@ -164,6 +182,17 @@ function addProduct(id, quantity = 1, silent = false) {
 }
 
 function addKit(id) {
+  if (live.store) {
+    const view = kitView(liveKits.find((entry) => entry.id === id), selectableProducts, live.free);
+    if (!view || view.available <= 0) {
+      showToast("На эти даты комплект не собрать");
+      return;
+    }
+    view.rows.forEach((row) => addProduct(row.product.id, row.qty, true));
+    showToast(`Комплект «${view.name}» добавлен`);
+    openCart();
+    return;
+  }
   const kit = kits.find((entry) => entry.id === id);
   kit.itemIds.forEach((productId, index) => addProduct(productId, kit.quantities[index], true));
   showToast(`Комплект «${kit.name}» добавлен`);
@@ -413,6 +442,7 @@ async function refreshAvailability() {
   }
   live.loading = false;
   renderProducts();
+  renderKits();
   renderCart();
 }
 
@@ -442,6 +472,7 @@ async function connectWarehouse() {
     // Комплекты и подбор собраны из позиций описи, а не склада: пока их состав
     // не утверждён на реальных позициях, в живом режиме они скрыты.
     $$("[data-live-hide]").forEach((element) => { element.hidden = true; });
+    renderKits();
     document.body.classList.add("is-live");
     renderCategoryFilters();
     await refreshAvailability();
