@@ -148,3 +148,7 @@ h1,h2,h3,strong,b{font-weight:600}
 .picker-card.is-opt .checkout-button{color:var(--ink);background:white}
 .picker-short{margin:0;color:#a2412f;font-size:11px}
 @media(max-width:820px){.picker-form{grid-template-columns:1fr}.picker-grid{grid-template-columns:1fr}.picker-section{padding:72px 0}}
+
+/* Просмотр витрины из админки */
+.preview-bar{position:sticky;top:0;z-index:80;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:white;background:var(--accent);font-size:12px;line-height:1.35}
+.preview-bar a{flex:none;padding:8px 12px;color:var(--ink);background:white;border-radius:var(--radius-sm);font-weight:700}

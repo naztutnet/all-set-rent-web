@@ -271,3 +271,8 @@ body.is-locked { overflow: hidden; }
 .ma-payment small { color: var(--muted); font-size: 11px; }
 .ma-payment.is-reversed b { text-decoration: line-through; color: var(--muted); }
 .ma-link { color: var(--red); font-size: 12px; text-decoration: underline; }
+
+/* Переключатель «Админка / Как видит клиент» */
+.ma-switch { margin: 12px var(--gutter) 0; display: flex; padding: 3px; background: var(--fog); border-radius: var(--radius-sm); }
+.ma-switch a { flex: 1; min-height: 38px; display: grid; place-items: center; border-radius: 7px; color: var(--muted); font-size: 13px; }
+.ma-switch a.is-active { color: var(--white); background: var(--ink); }

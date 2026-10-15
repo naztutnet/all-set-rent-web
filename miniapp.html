@@ -8,7 +8,7 @@
     <meta name="allset-api" content="" />
     <meta name="theme-color" content="#f7f7f5" />
     <title>ALLSET RENT · Склад</title>
-    <link rel="stylesheet" href="miniapp.css?v=3" />
+    <link rel="stylesheet" href="miniapp.css?v=4" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script type="module" src="src/miniapp.js?v=3"></script>
   </head>
@@ -17,6 +17,11 @@
       <a class="ma-brand" href="index.html" aria-label="ALLSET RENT"><span></span></a>
       <div class="ma-user" data-user><span>…</span></div>
     </header>
+
+    <nav class="ma-switch" aria-label="Режим просмотра">
+      <a class="is-active" href="miniapp.html" aria-current="page">Админка</a>
+      <a href="index.html?preview=client" data-client-view>Как видит клиент</a>
+    </nav>
 
     <div class="ma-mode" data-mode="loading" role="status"><i></i><span data-mode-text>Подключение к складу…</span></div>
 

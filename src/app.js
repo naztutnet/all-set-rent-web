@@ -532,6 +532,15 @@ async function connectWarehouse() {
   }
 }
 
+// Просмотр из админки: сверху полоса «Так сайт видит клиент» с возвратом назад.
+// Флаг держится на вкладку, чтобы полоса не пропадала при переходах по якорям.
+try {
+  if (new URLSearchParams(location.search).get("preview") === "client") sessionStorage.setItem("allset-preview", "client");
+  if (sessionStorage.getItem("allset-preview") === "client") $("[data-preview-bar]").hidden = false;
+} catch {
+  if (new URLSearchParams(location.search).get("preview") === "client") $("[data-preview-bar]").hidden = false;
+}
+
 initDates();
 renderCategoryFilters();
 renderProducts();
