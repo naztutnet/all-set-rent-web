@@ -1,6 +1,7 @@
 import { estimate, formatMoney, kits, products as kitProducts, rentalDays } from "./catalog.mjs?v=6";
 import { inventoryCategories, inventoryProducts } from "./inventory.mjs?v=6";
 import { createStorefront, detectApi, extraCategories, kitView, lineTotal, liveKits, toProduct } from "./storefront-live.mjs?v=2";
+import { buildVariants, describeContext } from "./picker.mjs?v=1";
 
 const allCategories = [...inventoryCategories, ...extraCategories];
 const categoryById = new Map(allCategories.map((category) => [category.id, category]));
@@ -331,8 +332,11 @@ document.addEventListener("click", (event) => {
   }
   if (target.matches("[data-open-help]")) {
     $(".mobile-nav").classList.remove("is-open");
-    helpDialog.showModal();
+    // На живом складе старый подбор из описи заменён подбором под проект.
+    if (live.store) $("#picker").scrollIntoView({ behavior: "smooth" });
+    else helpDialog.showModal();
   }
+  if (target.matches("[data-take-variant]")) takeVariant(target.dataset.takeVariant);
   if (target.matches("[data-jump-catalog]")) {
     closeCart();
     $("#catalog").scrollIntoView({ behavior: "smooth" });
@@ -428,6 +432,51 @@ async function submitOrder(event) {
 
 $("[data-order-form]").addEventListener("submit", submitOrder);
 
+// ---------------------------------------------------------------- подбор под проект
+
+const picker = { input: null, variants: [] };
+
+function pickerInput() {
+  const data = new FormData($("[data-picker-form]"));
+  return {
+    people: Number(data.get("people")),
+    location: String(data.get("location")),
+    night: data.get("night") === "on",
+    dateOut: startDate.value,
+    dateBack: endDate.value,
+  };
+}
+
+function renderPicker() {
+  if (!picker.input) return;
+  picker.variants = buildVariants({ ...picker.input, dateOut: startDate.value, dateBack: endDate.value }, selectableProducts, live.loading ? {} : live.free);
+  $("[data-picker-context]").textContent = `Подбор для: ${describeContext(picker.variants[0].context)}, ${formatDate(startDate.value)} → ${formatDate(endDate.value)}`;
+  $("[data-picker-grid]").innerHTML = picker.variants.map((variant) => `
+    <article class="picker-card${variant.id === "opt" ? " is-opt" : ""}">
+      <h3>${variant.name}</h3>
+      <p>${variant.note}</p>
+      <ul>${variant.rows.map((row) => `<li class="${row.short ? "is-short" : ""}" title="${row.why.join("; ")}"><span>${row.product.name}</span><small>× ${row.qty}${row.short ? ` · свободно ${row.free}` : ""}</small></li>`).join("")}</ul>
+      ${variant.short.length ? `<p class="picker-short">На эти даты не хватает ${variant.short.length} поз. В смету положим, сколько свободно.</p>` : ""}
+      <div class="picker-total"><span>за ${variant.context.shifts} ${variant.context.shifts === 1 ? "сутки" : "суток"}, по прайсу</span><strong>${formatMoney(variant.total)}</strong></div>
+      <button type="button" class="checkout-button" data-take-variant="${variant.id}">Взять этот вариант <span>→</span></button>
+    </article>`).join("");
+}
+
+function takeVariant(id) {
+  const variant = picker.variants.find((entry) => entry.id === id);
+  if (!variant) return;
+  variant.rows.forEach((row) => addProduct(row.product.id, row.qty, true));
+  showToast(`Вариант «${variant.name}» в смете. Проверьте и поправьте количество.`);
+  openCart();
+}
+
+$("[data-picker-form]").addEventListener("submit", (event) => {
+  event.preventDefault();
+  picker.input = pickerInput();
+  renderPicker();
+  $("[data-picker-grid]").scrollIntoView({ behavior: "smooth", block: "nearest" });
+});
+
 // ---------------------------------------------------------------- живой склад
 
 async function refreshAvailability() {
@@ -443,6 +492,7 @@ async function refreshAvailability() {
   live.loading = false;
   renderProducts();
   renderKits();
+  renderPicker();
   renderCart();
 }
 
@@ -472,6 +522,7 @@ async function connectWarehouse() {
     // Комплекты и подбор собраны из позиций описи, а не склада: пока их состав
     // не утверждён на реальных позициях, в живом режиме они скрыты.
     $$("[data-live-hide]").forEach((element) => { element.hidden = true; });
+    $$("[data-live-only]").forEach((element) => { element.hidden = false; });
     renderKits();
     document.body.classList.add("is-live");
     renderCategoryFilters();

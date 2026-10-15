@@ -114,6 +114,28 @@
         </div>
       </section>
 
+      <section class="picker-section" id="picker" data-live-only hidden>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Подбор под проект</p>
+            <h2>Расскажите про съёмку,<br />соберём набор</h2>
+          </div>
+          <p>Сезон берём из дат выше. Получите три варианта с ценой за весь срок и проверкой наличия. Любой вариант можно поправить в смете.</p>
+        </div>
+        <form class="picker-form" data-picker-form>
+          <label><span>Сколько человек в группе</span><input name="people" type="number" min="5" max="400" step="1" value="50" required /></label>
+          <fieldset><legend>Где снимаем</legend>
+            <div class="choice-row"><label><input type="radio" name="location" value="nature" checked /><span>Натура</span></label><label><input type="radio" name="location" value="studio" /><span>Павильон</span></label></div>
+          </fieldset>
+          <fieldset><legend>Смены</legend>
+            <div class="choice-row"><label><input type="checkbox" name="night" /><span>Есть ночные</span></label></div>
+          </fieldset>
+          <button type="submit" class="primary-button">Подобрать <span>→</span></button>
+        </form>
+        <p class="picker-context" data-picker-context></p>
+        <div class="picker-grid" data-picker-grid></div>
+      </section>
+
       <section class="kits-section" id="kits">
         <div class="section-heading inverse">
           <div>
