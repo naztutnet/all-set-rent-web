@@ -8,7 +8,7 @@
     <title>ALLSET RENT — всё для съёмочной смены</title>
     <link rel="stylesheet" href="theme.css?v=7" />
     <link rel="stylesheet" href="logo.css?v=1" />
-    <script type="module" src="src/app.js?v=6"></script>
+    <script type="module" src="src/app.js?v=7"></script>
   </head>
   <body>
     <a class="skip-link" href="#catalog">К каталогу</a>
@@ -114,7 +114,7 @@
         </div>
       </section>
 
-      <section class="kits-section" id="kits">
+      <section class="kits-section" id="kits" data-live-hide>
         <div class="section-heading inverse">
           <div>
             <p class="eyebrow">Проверенные составы</p>
@@ -125,7 +125,7 @@
         <div class="kit-grid" data-kit-grid></div>
       </section>
 
-      <section class="help-banner">
+      <section class="help-banner" data-live-hide>
         <div class="help-index">/ 01</div>
         <div>
           <p class="eyebrow">Не знаете точный состав?</p>
@@ -199,7 +199,7 @@
       <div class="cart-items" data-cart-items></div>
       <div class="empty-cart" data-empty-cart><div>＋</div><h3>Смета пока пустая</h3><p>Добавьте оборудование или готовый комплект.</p><button data-close-cart data-jump-catalog>Перейти в каталог</button></div>
       <div class="cart-summary" data-cart-summary>
-        <dl><div><dt>Аренда</dt><dd data-subtotal>0 ₽</dd></div><div><dt>Доставка по Москве</dt><dd data-delivery>0 ₽</dd></div><div><dt>Сервис и подготовка</dt><dd data-service>0 ₽</dd></div><div class="discount-row"><dt>Скидка за срок</dt><dd data-discount>0%</dd></div></dl>
+        <dl><div><dt>Аренда</dt><dd data-subtotal>0 ₽</dd></div><div data-estimate-extra><dt>Доставка по Москве</dt><dd data-delivery>0 ₽</dd></div><div data-estimate-extra><dt>Сервис и подготовка</dt><dd data-service>0 ₽</dd></div><div class="discount-row" data-estimate-extra><dt>Скидка за срок</dt><dd data-discount>0%</dd></div></dl>
         <div class="total-row"><span>Итого</span><strong data-total>0 ₽</strong></div>
         <p data-cart-note>Финальная стоимость — после подтверждения адреса и наличия.</p>
         <button class="checkout-button" data-checkout>Запросить подтверждение <span>→</span></button>
@@ -207,6 +207,35 @@
       </div>
     </aside>
     <div class="overlay" data-overlay></div>
+
+    <dialog class="help-dialog order-dialog" data-order-dialog aria-labelledby="order-title">
+      <div class="order-body">
+        <div class="dialog-head"><div><span>Заявка на аренду</span><h2 id="order-title">Запросить подтверждение</h2></div><button type="button" class="icon-button" data-close-order aria-label="Закрыть">×</button></div>
+        <p class="order-summary" data-order-summary></p>
+        <form data-order-form>
+          <label><span>Имя</span><input name="name" required minlength="2" maxlength="80" autocomplete="name" /></label>
+          <label><span>Телефон</span><input name="phone" type="tel" required maxlength="32" autocomplete="tel" placeholder="+7 900 000-00-00" /></label>
+          <label><span>Компания</span><input name="company" maxlength="120" autocomplete="organization" /></label>
+          <label><span>Проект</span><input name="project" maxlength="120" placeholder="Название фильма, сериала, рекламы" /></label>
+          <label><span>Почта для сметы</span><input name="email" type="email" maxlength="120" autocomplete="email" /></label>
+          <label><span>Комментарий</span><textarea name="comment" rows="3" maxlength="1000" placeholder="Адрес площадки, время, доставка"></textarea></label>
+          <label class="order-trap" aria-hidden="true"><span>Сайт</span><input name="website" tabindex="-1" autocomplete="off" /></label>
+          <p class="order-error" role="alert" data-order-error></p>
+          <button type="submit" class="checkout-button">Отправить заявку</button>
+          <p class="order-note">Заявка попадёт на склад. Проверим наличие, подтвердим и пришлём смету. Оплата после подтверждения.</p>
+        </form>
+        <div class="order-done" data-order-done hidden>
+          <h3>Заявка принята</h3>
+          <p data-order-number></p>
+          <p>Проверим наличие и свяжемся по телефону, чтобы подтвердить и прислать смету.</p>
+          <button type="button" class="checkout-button" data-close-order>Готово</button>
+        </div>
+        <div class="order-offline" data-order-offline hidden>
+          <p>Онлайн-заявки скоро заработают. Пока скачайте смету и отправьте её нам: подтвердим наличие и время.</p>
+          <button type="button" class="checkout-button" data-download>Скачать смету</button>
+        </div>
+      </div>
+    </dialog>
 
     <dialog class="help-dialog" data-help-dialog>
       <form method="dialog">

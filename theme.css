@@ -100,3 +100,23 @@ h1,h2,h3,strong,b{font-weight:600}
   .product-placeholder span{font-size:64px}
   .cart-item-placeholder{width:50px;height:50px}
 }
+
+/* Живой склад: наличие на даты и заявка */
+body.is-live [data-open-help],body.is-live .footer-links a[href="#kits"]{display:none}
+.stock.is-out{color:#a2412f}.stock.is-out::before{background:#a2412f}
+.add-button:disabled{background:#c9c9c4;cursor:not-allowed}
+.checkout-button:disabled{background:#b9b9b4;cursor:not-allowed}
+.order-body{padding:27px}
+.order-summary{margin:10px 0 4px;color:var(--muted);font-size:12px}
+.order-dialog form{padding:0;display:grid;gap:12px;margin-top:14px}
+.order-dialog label{display:grid;gap:6px}
+.order-dialog label span{color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-size:9px}
+.order-dialog input,.order-dialog textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);background:white;font:inherit;font-size:15px}
+.order-dialog input:focus,.order-dialog textarea:focus{outline:0;border-color:var(--ink)}
+.order-trap{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}
+.order-error{margin:0;color:#a2412f;font-size:12px}.order-error:empty{display:none}
+.order-note{margin:0;color:var(--muted);font-size:11px;line-height:1.5}
+.order-done h3{margin:18px 0 8px;font-size:24px;letter-spacing:-.04em}
+.order-done p,.order-offline p{color:var(--muted);font-size:13px;line-height:1.55}
+.order-done p:first-of-type{color:var(--ink);font-weight:700}
+.order-dialog [hidden],[data-estimate-extra][hidden]{display:none!important}
